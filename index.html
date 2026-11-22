@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="A free open-source, privacy-first manuscript readiness checker for scholarly journals. Configure rules for any journal and inspect PDF/DOCX files locally."/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://api.crossref.org https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; form-action 'none'"/>
+  <meta name="theme-color" content="#0d223a"/>
+  <title>Open Journal Checker — Submission Readiness</title>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <div id="app">
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="Open Journal Checker home"><span class="brand-icon" aria-hidden="true">↗</span><span class="brand-text">Open<span>Journal</span><small>CHECKER / OPEN SOURCE</small></span></a>
+        <nav class="nav-actions" aria-label="App navigation">
+          <span class="nav-tag" data-i18n="navTag">OPEN-SOURCE RESEARCH SOFTWARE</span>
+          <select id="language" aria-label="Display language"><option value="en">English</option><option value="ar">العربية</option><option value="ku">کوردی (بادینی)</option></select>
+          <button class="link-button" id="open-settings" data-i18n="settings">Journal settings</button>
+        </nav>
+      </div>
+    </header>
+    <main class="shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <div class="eyebrow"><span class="pulse"></span><span data-i18n="heroTag">Author preparation · Submission readiness</span></div>
+          <h1 id="hero-title" data-i18n="heroTitle">A better submission <em>starts here.</em></h1>
+          <p class="hero-copy" data-i18n="heroText">Check manuscript metadata, inspect a file locally, confirm essential requirements, and produce a preparation report. No account required.</p>
+          <div class="hero-meta"><div><span class="small-dot"></span><strong id="journal-name">Open Journal Demo</strong></div><a id="journal-website" target="_blank" rel="noopener noreferrer">Journal website ↗</a></div>
+        </div>
+        <aside class="hero-stat" aria-label="Readiness status"><span class="stat-overline">SUBMISSION PULSE</span><div class="stat-number"><span id="hero-count">0</span><span class="stat-of"> / <span id="hero-total">15</span></span></div><div class="hero-meter"><div id="hero-bar"></div></div><span id="hero-status" class="stat-caption">Needs attention</span><div class="hero-art" aria-hidden="true"><div class="paper one"></div><div class="paper two"></div><div class="check-symbol">✓</div></div></aside>
+      </section>
+      <div class="safety-bar"><span class="safety-icon">◈</span><div><strong data-i18n="browser">Private by design</strong><span data-i18n="browserText">Manuscript content stays in your browser. Optional DOI lookup sends only a DOI to Crossref.</span></div></div>
+      <div class="columns">
+        <div class="main-column">
+          <section class="panel" aria-labelledby="details-heading">
+            <div class="panel-head"><span class="section-number">01</span><h2 id="details-heading" data-i18n="step1">01 / Manuscript metadata</h2></div>
+            <div class="panel-body">
+              <div class="field-grid"><label class="field"><span data-i18n="articleType">Article type</span><select id="article-type"><option value="" data-i18n="articleHint">Select article type</option></select></label><label class="field"><span data-i18n="subject">Subject area</span><select id="subject"><option value="" data-i18n="subjectHint">Select subject area</option></select></label></div>
+              <div class="scope-note"><span aria-hidden="true">ⓘ</span> <span data-i18n="subjectHelp">Scope is estimated by keyword overlap; the journal editor determines subject fit.</span></div>
+              <label class="field block-field"><span data-i18n="title">Manuscript title</span><input id="title" type="text" autocomplete="off" maxlength="1000" placeholder="Enter your manuscript title" data-placeholder="titleHint"/><span class="field-hint"><span id="title-count">0</span> <span data-i18n="words">words</span> · <span data-i18n="titleHelp">Maximum</span> <span id="title-max">20</span></span></label>
+              <label class="field block-field"><span data-i18n="abstract">Abstract</span><textarea id="abstract" rows="9" maxlength="12000" placeholder="Paste your abstract here" data-placeholder="abstractHint"></textarea><span class="field-hint"><span id="abstract-count">0</span> <span data-i18n="words">words</span> · <span data-i18n="abstractHelp">Target</span> <span id="abstract-range">150–250</span></span></label>
+              <label class="field block-field"><span data-i18n="keywords">Keywords</span><input id="keywords" type="text" maxlength="1200" autocomplete="off" placeholder="Artificial intelligence; Data science; Ethics" data-placeholder="keywordsHint"/><span class="field-hint"><span id="keywords-count">0</span> <span data-i18n="terms">terms</span> · <span data-i18n="keywordsHelp">Semicolon-separated keywords, alphabetical order</span></span></label>
+            </div>
+          </section>
+          <section class="panel" aria-labelledby="file-heading">
+            <div class="panel-head"><span class="section-number">02</span><h2 id="file-heading" data-i18n="step2">02 / Manuscript file (optional)</h2></div>
+            <div class="panel-body"><p class="muted" data-i18n="fileHelp">Upload PDF or DOCX for preliminary text and heading checks. Files are read in this tab, never sent to our server.</p>
+              <label class="drop-zone" for="manuscript-file"><span class="upload-icon" aria-hidden="true">⇧</span><strong data-i18n="filePick">Choose a manuscript file</strong><small data-i18n="fileLimit">DOCX 12 MB / PDF 15 MB · PDF requires internet to load the PDF.js reader.</small><input id="manuscript-file" type="file" accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/></label>
+              <div id="file-info" class="file-empty" role="status" aria-live="polite">No manuscript inspected yet.</div>
+              <div id="doi-zone" class="doi-zone" hidden><button id="verify-doi" class="secondary small" data-i18n="doiLookup">Verify first DOI with Crossref</button><small data-i18n="doiNote">Optional online lookup; only the DOI is sent to Crossref.</small><div id="doi-result" role="status" aria-live="polite"></div></div>
+            </div>
+          </section>
+          <section class="panel" aria-labelledby="confirm-heading"><div class="panel-head"><span class="section-number">03</span><h2 id="confirm-heading" data-i18n="step3">03 / Author confirmations</h2></div><div class="panel-body"><div id="confirmations" class="confirm-list"></div></div></section>
+        </div>
+        <aside class="side-column">
+          <section class="summary-card" aria-labelledby="summary-heading"><div class="summary-top"><span class="small-heading" data-i18n="step4" id="summary-heading">Your readiness checklist</span><span id="score-badge" class="score-badge">0%</span></div><div class="summary-fraction"><strong id="summary-count">0</strong><span> / <span id="summary-total">15</span></span></div><div class="summary-track"><div id="summary-bar"></div></div><p class="summary-small" data-i18n="progress">Completed checks</p><hr/><h3 data-i18n="checks">Metadata checks</h3><div id="checks" class="checks"></div><hr/><div class="confirm-progress"><span data-i18n="confirmations">Author confirmations</span><strong id="confirm-count">0/10</strong></div><div class="mini-track"><div id="confirm-bar"></div></div>
+            <div class="summary-buttons"><button class="primary" id="download-report"><span>↓</span><span data-i18n="report">Download report</span></button><button class="secondary" id="download-json" data-i18n="json">Export JSON</button><div class="small-buttons"><button id="print" data-i18n="print">Print</button><button id="clear" data-i18n="clear">Clear entries</button></div></div>
+          </section>
+          <section class="help-card"><div class="help-icon">↗</div><h3 data-i18n="guidelines">Journal guidelines</h3><p id="guidance">Preparation checks are advisory. The journal’s current author guidelines and editor decisions always take precedence.</p><a id="guidelines-url" target="_blank" rel="noopener noreferrer">Read author guidelines ↗</a><a id="submission-url" target="_blank" rel="noopener noreferrer" data-i18n="submission">Open journal submission</a></section>
+        </aside>
+      </div>
+      <section class="disclaimer"><strong>Important</strong><p data-i18n="warning">This is a preparation aid, not editorial approval, plagiarism detection, or a substitute for author guidelines.</p></section>
+    </main>
+    <footer class="footer"><div class="shell footer-inner"><div><strong>OpenJournal Checker</strong><span data-i18n="published">Open Journal Checker · Independent open-source edition</span></div><a href="https://opensource.org/license/apache-2.0" target="_blank" rel="noopener noreferrer">Apache-2.0 License ↗</a><span>© 2026 Ridwan Shamoun</span></div></footer>
+  </div>
+  <dialog id="settings-dialog" aria-labelledby="settings-heading"><form id="settings-form"><div class="settings-head"><div><span class="small-heading">JOURNAL ADMINISTRATION</span><h2 id="settings-heading" data-i18n="settingsTitle">Configure your journal</h2><p data-i18n="settingsIntro">Change the journal rules and branding. Configuration is saved on this device; manuscript text is not.</p></div><button type="button" id="close-settings" class="icon-button" aria-label="Close">×</button></div><div class="settings-fields">
+    <label><span data-i18n="journalName">Journal name</span><input name="journalName" required maxlength="100"/></label>
+    <label><span data-i18n="shortName">Abbreviation</span><input name="journalShortName" maxlength="24"/></label>
+    <label><span data-i18n="website">Journal website</span><input name="journalWebsite" type="url"/></label>
+    <label><span data-i18n="guidelinesUrl">Guidelines URL</span><input name="guidelinesUrl" type="url"/></label>
+    <label><span data-i18n="submissionUrl">Submission URL</span><input name="submissionUrl" type="url"/></label>
+    <label><span data-i18n="logoUrl">Logo URL (optional)</span><input name="logoUrl" type="url"/></label>
+    <label><span data-i18n="accent">Accent color</span><input name="accent" type="color" value="#225d8f"/></label>
+    <label><span data-i18n="maxTitle">Maximum title words</span><input name="titleMaxWords" type="number" min="5" max="100"/></label>
+    <label><span data-i18n="minAbstract">Abstract minimum</span><input name="abstractMinWords" type="number" min="0" max="1000"/></label>
+    <label><span data-i18n="maxAbstract">Abstract maximum</span><input name="abstractMaxWords" type="number" min="0" max="2000"/></label>
+    <label><span data-i18n="minKeywords">Minimum keywords</span><input name="keywordsMin" type="number" min="1" max="20"/></label>
+    <label><span data-i18n="maxKeywords">Maximum keywords</span><input name="keywordsMax" type="number" min="1" max="30"/></label>
+    <label class="full"><span data-i18n="types">Article types (one per line)</span><textarea name="articleTypes" rows="4"></textarea></label>
+    <label class="full"><span data-i18n="areas">Subject areas (one per line: Name | term1, term2)</span><textarea name="subjects" rows="5"></textarea></label>
+    <label class="full"><span data-i18n="declarations">Author confirmations (one per line)</span><textarea name="confirmations" rows="8"></textarea></label>
+    <label class="full"><span data-i18n="extra">Additional journal guidance</span><textarea name="extraGuidance" rows="3" maxlength="1500"></textarea></label>
+  </div><p class="muted tiny" data-i18n="settingsInfo">Journal administrators can export JSON and host a customized version. The app never saves manuscript text between sessions.</p><div class="settings-actions"><button type="button" class="secondary" id="config-export" data-i18n="exportConfig">Export journal configuration</button><label class="secondary faux-button" for="config-import" data-i18n="importConfig">Import journal JSON</label><input type="file" id="config-import" accept=".json,application/json" hidden/><button type="button" class="text-button" id="config-reset" data-i18n="resetConfig">Reset demo configuration</button><button class="primary" type="submit" data-i18n="saveConfig">Save settings</button></div></form></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
