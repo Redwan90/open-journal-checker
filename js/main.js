@@ -81,7 +81,7 @@ function update() {
   return result;
 }
 function updateLanguage(next) {
-  language = ['en','ar','ku'].includes(next) ? next : 'en';
+  language = ['en','ar','ku','tr'].includes(next) ? next : 'en';
   document.documentElement.lang = language;
   document.documentElement.dir = rtl(language) ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = label(el.dataset.i18n); });
