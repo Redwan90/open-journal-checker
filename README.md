@@ -8,9 +8,7 @@ Originally inspired by the publicly observable workflow of the [Milky Way Scient
 
 ## Preview
 
-![Open Journal Checker desktop preview](docs/preview-desktop.png)
-
-[Mobile screenshot](docs/preview-mobile.png)
+Run the application locally with `python3 -m http.server 8000` or enable GitHub Pages to view the responsive interface.
 
 ## Features
 
