@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If this software helps your journal or research workflow, please cite the repository."
+title: "Open Journal Checker: Configurable Submission Readiness Tool"
+authors:
+  - family-names: Shamoun
+    given-names: Ridwan
+type: software
+version: 1.0.0
+license: Apache-2.0
+repository-code: https://github.com/Redwan90/open-journal-checker
