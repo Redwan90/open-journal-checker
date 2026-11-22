@@ -227,6 +227,7 @@ function attach() {
   $('settings-form').addEventListener('submit',saveSettings);
   $('config-export').addEventListener('click',()=>download('journal-settings.json',JSON.stringify(config,null,2),'application/json'));
   $('config-reset').addEventListener('click',()=>{ replaceConfig(DEFAULT_CONFIG); localStorage.removeItem(STORAGE); openSettings(); renderJournal();update();flash(label('reset')); });
+  $('config-import-trigger').addEventListener('click',()=>$('config-import').click());
   $('config-import').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try { if(file.size>100000)throw new Error('Configuration must be under 100 KB.');

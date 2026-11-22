@@ -43,6 +43,16 @@ npm test
 
 No `npm install` is required. Node.js 22+ is recommended for the test suite, but no Node.js is needed to serve the site.
 
+For browser regression tests, install the development-only dependencies and browsers:
+
+```bash
+npm ci
+npx playwright install chromium firefox
+npm run test:browser
+```
+
+These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They check Chromium and Firefox, narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. The application itself still needs no build step or runtime package installation.
+
 ## Deploy for a journal
 
 - Copy all static files (`index.html`, `style.css`, `js/`, and optionally `journal-settings.json`) into your journal web server's `/checker/` directory.

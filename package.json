@@ -6,8 +6,14 @@
   "description": "Configurable open-source manuscript submission readiness checker for scholarly journals",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "test:browser": "playwright test"
   },
   "license": "Apache-2.0",
-  "author": "Ridwan Shamoun"
+  "author": "Ridwan Shamoun",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
+    "pdfjs-dist": "6.5.438"
+  }
 }

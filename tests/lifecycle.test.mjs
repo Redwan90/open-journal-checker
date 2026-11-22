@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
-import { readPdfDocument } from '../js/files.js';
+import { readPdfDocument, readPdfTask } from '../js/files.js';
 import { inspectText } from '../js/checker.js';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
@@ -56,8 +56,8 @@ test('PDF line endings preserve headings and release document resources', async 
   const doc={numPages:1,getPage:async()=>({getTextContent:async()=>({items:[
     {str:'Abstract',hasEOL:true},{str:'Some results',hasEOL:true},
     {str:'Methods',hasEOL:true},{str:'Analysis',hasEOL:true},{str:'References',hasEOL:true}
-  ]})}),destroy:async()=>{destroyed=true;}};
-  const result=await readPdfDocument(doc);
+  ]})})};
+  const result=await readPdfTask({promise:Promise.resolve(doc),destroy:async()=>{destroyed=true;}});
   assert.equal(inspectText(result.text).headings.abstract,true);
   assert.equal(inspectText(result.text).headings.methods,true);
   assert.equal(destroyed,true);
@@ -65,9 +65,16 @@ test('PDF line endings preserve headings and release document resources', async 
 
 test('PDF resources are released on extraction failure and inspection stays capped', async () => {
   let destroyed=0, pages=0;
-  const doc={numPages:40,getPage:async()=>{pages++;return {getTextContent:async()=>({items:[]})};},destroy:async()=>{destroyed++;}};
-  assert.equal((await readPdfDocument(doc)).partial,true); assert.equal(pages,30);
+  const doc={numPages:40,getPage:async()=>{pages++;return {getTextContent:async()=>({items:[]})};}};
+  const task={promise:Promise.resolve(doc),destroy:async()=>{destroyed++;}};
+  assert.equal((await readPdfTask(task)).partial,true); assert.equal(pages,30);
   doc.getPage=async()=>{throw new Error('Unreadable page');};
-  await assert.rejects(readPdfDocument(doc),/Unreadable page/);
+  await assert.rejects(readPdfTask(task),/Unreadable page/);
   assert.equal(destroyed,2);
+});
+
+test('PDF loading task is destroyed when document loading fails',async()=>{
+  let destroyed=false;
+  await assert.rejects(readPdfTask({promise:Promise.reject(new Error('Invalid PDF')),destroy:async()=>{destroyed=true;}}),/Invalid PDF/);
+  assert.equal(destroyed,true);
 });
