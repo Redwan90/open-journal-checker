@@ -21,7 +21,7 @@ Run the application locally with `python3 -m http.server 8000` or enable GitHub 
 - Opt-in Crossref DOI lookup, sending **only the DOI**
 - Download a standalone HTML report, export a structured JSON report, and print
 - Export/import journal configurations as JSON; optional host-provided `journal-settings.json`
-- English, Arabic, and Kurdish Badini UI options (community feedback on translations welcome)
+- English, Arabic, Kurdish Badini, and Turkish UI options (community feedback on translations welcome)
 - Accessible, responsive layouts and keyboard-friendly controls
 - Deployment on GitHub Pages, Netlify, university servers, or ordinary static hosting
 
