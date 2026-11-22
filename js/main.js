@@ -16,6 +16,16 @@ let fileDescription = null;
 let checkedDoi = null;
 let confirmationSet = new Set();
 let toastTimer;
+let fileGeneration = 0;
+let doiController = null;
+function invalidateFile() {
+  fileGeneration++;
+  doiController?.abort(); doiController = null;
+  fileSummary = null; fileDescription = null; checkedDoi = null;
+  $('verify-doi').disabled = false;
+  $('doi-result').textContent = '';
+  $('doi-zone').hidden = true;
+}
 const label = key => t(language, key);
 function flash(message, error = false) {
   const node = $('toast'); node.textContent = message; node.classList.toggle('error', error); node.hidden = false;
@@ -111,15 +121,20 @@ function renderFile() {
   $('doi-result').textContent = checkedDoi || '';
 }
 async function onUpload() {
-  const file = $('manuscript-file').files?.[0]; if (!file) return;
+  invalidateFile();
+  const generation = fileGeneration;
+  const file = $('manuscript-file').files?.[0];
+  if (!file) { $('file-info').textContent = label('fileIdle'); return; }
   $('file-info').className = 'file-empty'; $('file-info').textContent = 'Inspecting manuscript locally…';
   $('doi-zone').hidden = true; checkedDoi = null;
   try {
     const extracted = await readManuscriptFile(file);
+    if (generation !== fileGeneration) return;
     fileSummary = inspectText(extracted.text);
     fileDescription = { name:file.name, size:`${(file.size / 1024).toFixed(0)} KB`, pages:extracted.pages, partial:extracted.partial };
     renderFile();
   } catch (e) {
+    if (generation !== fileGeneration) return;
     fileSummary = null; fileDescription = null;
     $('file-info').textContent = e.message || 'Unable to inspect the selected file.';
     $('file-info').className = 'error file-empty';
@@ -128,14 +143,19 @@ async function onUpload() {
 async function verifyDoi() {
   if (!fileSummary?.dois?.length) return;
   const doi = fileSummary.dois[0]; if (!isDoi(doi)) return;
+  const generation = fileGeneration;
+  const controller = new AbortController();
+  doiController?.abort(); doiController = controller;
+  const current = () => generation === fileGeneration && doiController === controller;
   const button = $('verify-doi'); button.disabled = true; $('doi-result').textContent = label('verifyPending');
   try {
-    const response = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`, { headers:{ Accept:'application/json' } });
+    const response = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`, { headers:{ Accept:'application/json' }, signal:controller.signal, referrerPolicy:'no-referrer', credentials:'omit' });
+    if (!current()) return;
     if (response.status === 404) checkedDoi = `DOI not found in Crossref: ${doi} (does not necessarily mean invalid).`;
     else if (!response.ok) checkedDoi = `Crossref returned HTTP ${response.status}.`;
-    else { const data = await response.json(); checkedDoi = `Crossref record found: ${(data.message?.title?.[0] || doi).slice(0,180)}.`; }
-  } catch { checkedDoi = 'Could not connect to Crossref. Try again later.'; }
-  finally { button.disabled = false; $('doi-result').textContent = checkedDoi; }
+    else { const data = await response.json(); if (!current()) return; checkedDoi = `Crossref record found: ${(data.message?.title?.[0] || doi).slice(0,180)}.`; }
+  } catch { if (current()) checkedDoi = 'Could not connect to Crossref. Try again later.'; }
+  finally { if (current()) { doiController = null; button.disabled = false; $('doi-result').textContent = checkedDoi; } }
 }
 function download(filename, content, mime) {
   const href = URL.createObjectURL(new Blob([content], { type:mime }));
@@ -179,6 +199,7 @@ function saveSettings(e) {
   $('settings-dialog').close(); renderJournal(); update(); flash(label('saved'));
 }
 function clearEntries() {
+  invalidateFile();
   ['title','abstract','keywords'].forEach(id=>{ $(id).value=''; });
   ['article-type','subject'].forEach(id=>{ $(id).value=''; });
   $('manuscript-file').value = ''; confirmationSet.clear(); renderConfirmations();
