@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "journalName": "Open Journal Demo",
+  "journalShortName": "OJD",
+  "journalWebsite": "https://example.org",
+  "guidelinesUrl": "https://example.org/author-guidelines",
+  "submissionUrl": "https://example.org/submissions",
+  "logoUrl": "",
+  "accent": "#225d8f",
+  "articleTypes": [
+    "Research Article",
+    "Review Article",
+    "Short Communication",
+    "Case Study",
+    "Methodology Paper"
+  ],
+  "titleMaxWords": 20,
+  "abstractMinWords": 150,
+  "abstractMaxWords": 250,
+  "keywordsMin": 3,
+  "keywordsMax": 6,
+  "keywordSeparator": ";",
+  "subjects": [
+    {
+      "name": "Computer Science & AI",
+      "terms": [
+        "artificial intelligence",
+        "machine learning",
+        "neural",
+        "software",
+        "computing",
+        "algorithm",
+        "data",
+        "cybersecurity",
+        "network"
+      ]
+    },
+    {
+      "name": "Engineering",
+      "terms": [
+        "engineering",
+        "electrical",
+        "mechanical",
+        "materials",
+        "energy",
+        "optimization",
+        "system",
+        "control",
+        "structural"
+      ]
+    },
+    {
+      "name": "Health & Life Sciences",
+      "terms": [
+        "health",
+        "clinical",
+        "medicine",
+        "drug",
+        "patient",
+        "biology",
+        "genomic",
+        "disease",
+        "pharmacology"
+      ]
+    },
+    {
+      "name": "Education & Social Sciences",
+      "terms": [
+        "education",
+        "learning",
+        "student",
+        "teacher",
+        "social",
+        "policy",
+        "survey",
+        "curriculum",
+        "community"
+      ]
+    }
+  ],
+  "confirmations": [
+    "The manuscript is original and is not under review elsewhere.",
+    "All authors reviewed and approved the submitted manuscript.",
+    "Research ethics approval or an exemption is stated where applicable.",
+    "Informed consent and participant privacy were considered where applicable.",
+    "Competing interests are disclosed, including a statement if none exist.",
+    "Funding and sponsor roles are disclosed, including if unfunded.",
+    "A data availability statement is provided where applicable.",
+    "Any use of generative AI is disclosed according to journal policy.",
+    "References have been checked, including available DOI links.",
+    "The manuscript follows this journal’s formatting and anonymization instructions."
+  ],
+  "extraGuidance": "Preparation checks are advisory. The journal’s current author guidelines and editor decisions always take precedence."
+}
