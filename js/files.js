@@ -65,13 +65,20 @@ export async function extractPdf(file) {
     .catch(() => { throw new Error('PDF text extraction needs access to the PDF.js library. Connect to the internet or paste your abstract manually.'); });
   pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.mjs';
   const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), useSystemFonts: true }).promise;
-  const pageLimit = Math.min(doc.numPages, 30);
-  const contents = [];
-  for (let i = 1; i <= pageLimit; i++) {
-    const page = await doc.getPage(i), data = await page.getTextContent();
-    contents.push(data.items.map(v => v.str || '').join(' '));
-  }
-  return { text: contents.join('\n'), pages: doc.numPages, partial: doc.numPages > pageLimit };
+  return readPdfDocument(doc);
+}
+
+// Preserve PDF.js line boundaries for the line-oriented heading checks.
+export async function readPdfDocument(doc) {
+  try {
+    const pageLimit = Math.min(doc.numPages, 30);
+    const contents = [];
+    for (let i = 1; i <= pageLimit; i++) {
+      const page = await doc.getPage(i), data = await page.getTextContent();
+      contents.push(data.items.map(v => (v.str || '') + (v.hasEOL ? '\n' : ' ')).join(''));
+    }
+    return { text: contents.join('\n'), pages: doc.numPages, partial: doc.numPages > pageLimit };
+  } finally { await doc.destroy(); }
 }
 export async function readManuscriptFile(file) {
   if (!file) throw new Error('Select a PDF or DOCX file.');
