@@ -88,6 +88,8 @@ The settings interface is not an authentication or authorization system; any vis
 
 This is **self-reported preparation**, not a scientific or editorial quality metric. Scope matching uses simple keyword patterns and can produce false positives/negatives. Heading detection uses English-language patterns and works best on text-based files. Scanned PDFs may contain no extractable text.
 
+Saving, importing, resetting, or loading a hosted journal configuration clears all author confirmations, even if the declaration wording is unchanged. Authors must review and confirm the active journal rules again. Changing the interface language preserves confirmations.
+
 ## Privacy, licenses and security
 
 Manuscript text is not uploaded or stored in the application. Temporary manuscript entries vanish when the page reloads. Journal settings alone are stored in `localStorage` once saved. PDF extraction loads PDF.js 6.5.438 code from jsDelivr; optional DOI verification makes a Crossref request. See [SECURITY.md](SECURITY.md).

@@ -15,6 +15,13 @@ let fileSummary = null;
 let fileDescription = null;
 let checkedDoi = null;
 let confirmationSet = new Set();
+function replaceConfig(input) {
+  const next = normalizeConfig(input);
+  config = next;
+  // Author consent belongs to the current journal rules, never to array positions.
+  // Language changes only re-render and do not call this function.
+  confirmationSet.clear();
+}
 let toastTimer;
 let fileGeneration = 0;
 let doiController = null;
@@ -194,7 +201,7 @@ function saveSettings(e) {
   proposed.articleTypes = f.articleTypes.value.split(/\r?\n/);
   proposed.subjects = parseSubjects(f.subjects.value);
   proposed.confirmations = f.confirmations.value.split(/\r?\n/);
-  config = normalizeConfig(proposed);
+  replaceConfig(proposed);
   localStorage.setItem(STORAGE, JSON.stringify(config));
   $('settings-dialog').close(); renderJournal(); update(); flash(label('saved'));
 }
@@ -219,11 +226,11 @@ function attach() {
   $('close-settings').addEventListener('click',()=>$('settings-dialog').close());
   $('settings-form').addEventListener('submit',saveSettings);
   $('config-export').addEventListener('click',()=>download('journal-settings.json',JSON.stringify(config,null,2),'application/json'));
-  $('config-reset').addEventListener('click',()=>{ config = normalizeConfig(DEFAULT_CONFIG); localStorage.removeItem(STORAGE); openSettings(); renderJournal();update();flash(label('reset')); });
+  $('config-reset').addEventListener('click',()=>{ replaceConfig(DEFAULT_CONFIG); localStorage.removeItem(STORAGE); openSettings(); renderJournal();update();flash(label('reset')); });
   $('config-import').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try { if(file.size>100000)throw new Error('Configuration must be under 100 KB.');
-      config=normalizeConfig(JSON.parse(await file.text()));localStorage.setItem(STORAGE,JSON.stringify(config));openSettings();renderJournal();update();flash(label('saved'));
+      replaceConfig(JSON.parse(await file.text()));localStorage.setItem(STORAGE,JSON.stringify(config));openSettings();renderJournal();update();flash(label('saved'));
     } catch(err){flash(`${label('invalidConfig')} ${err.message}`,true)}finally{e.target.value='';}
   });
 }
@@ -233,7 +240,7 @@ async function loadHostedConfig() {
     const response = await fetch('./journal-settings.json', { cache: 'no-store' });
     if (!response.ok) return;
     const hosted = await response.json();
-    config = normalizeConfig(hosted);
+    replaceConfig(hosted);
     renderJournal(); update();
   } catch { /* Static host has no JSON configuration; use the built-in demo. */ }
 }
