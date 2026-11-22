@@ -67,3 +67,13 @@ test('Detect document sections from plain text', () => {
  assert.equal(r.headings.references,true);
  assert.deepEqual(r.dois,['10.1234/abc']);
 });
+
+test('Turkish translations exist and use left-to-right layout', async () => {
+ const { t, rtl } = await import('../js/i18n.js');
+ assert.equal(t('tr', 'settings'), 'Dergi ayarları');
+ assert.equal(t('tr', 'report'), 'Raporu indir');
+ assert.equal(t('tr', 'filePick'), 'Makale dosyası seçin');
+ assert.equal(rtl('tr'), false);
+ assert.equal(rtl('ar'), true);
+ assert.equal(rtl('ku'), true);
+});
