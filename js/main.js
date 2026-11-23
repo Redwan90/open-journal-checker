@@ -24,6 +24,7 @@ let configRevision = 0;
 let language = 'en';
 let fileSummary = null;
 let fileDescription = null;
+let fileStatus = null;
 let checkedDoi = null;
 let confirmationSet = new Set();
 function replaceConfig(input) {
@@ -41,11 +42,19 @@ function invalidateFile() {
   fileGeneration++;
   doiController?.abort(); doiController = null;
   fileSummary = null; fileDescription = null; checkedDoi = null;
+  fileStatus = null;
   $('verify-doi').disabled = false;
   $('doi-result').textContent = '';
   $('doi-zone').hidden = true;
 }
-const label = key => t(language, key);
+const label = (key, params) => t(language, key, params);
+function renderDoi() {
+  $('doi-result').textContent = checkedDoi ? label(checkedDoi.key, checkedDoi.params) : doiController ? label('verifyPending') : '';
+}
+function renderFileStatus() {
+  $('file-info').className = fileStatus?.error ? 'error file-empty' : 'file-empty';
+  $('file-info').textContent = label(fileStatus?.key || 'fileIdle');
+}
 function flash(message, error = false) {
   const node = $('toast'); node.textContent = message; node.classList.toggle('error', error); node.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 4200);
@@ -79,10 +88,17 @@ function renderConfirmations() {
     const el = document.createElement('label'); el.className = 'confirm-item';
     const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = confirmationSet.has(i); checkbox.setAttribute('aria-label', description);
     checkbox.addEventListener('change', () => { checkbox.checked ? confirmationSet.add(i) : confirmationSet.delete(i); update(); });
-    const copy = document.createElement('span'); copy.textContent = description; el.append(checkbox, copy); return el;
+    const copy = document.createElement('span'); copy.textContent = description; copy.dir = 'auto'; el.append(checkbox, copy); return el;
   }));
 }
 const checkNames = { title:'titleCheck', abstract:'abstractCheck', keywords:'keywordsCheck', alphabetical:'alphabeticalCheck', scope:'scopeCheck' };
+function checkDetail(check, result) {
+  if (check.id === 'title') return label('checkTitleValue', { count:result.words.title, max:config.titleMaxWords });
+  if (check.id === 'abstract') return label('checkAbstractValue', { count:result.words.abstract, min:config.abstractMinWords, max:config.abstractMaxWords });
+  if (check.id === 'keywords') return label('checkKeywordsValue', { count:result.keywords.length, min:config.keywordsMin, max:config.keywordsMax });
+  if (check.id === 'alphabetical') return label('keywordsHelp');
+  return result.scope.matches.length ? label('scopeMatches', { terms:result.scope.matches.join(', ') }) : label('scopeHeuristic');
+}
 function update() {
   const result = evaluate(getManuscript(), config);
   $('hero-count').textContent = result.passed;
@@ -104,7 +120,7 @@ function update() {
     const icon = document.createElement('span'); icon.className = 'check-icon'; icon.textContent = c.pass ? '✓' : '–';
     const text = document.createElement('div'); text.className = 'check-detail';
     const bold = document.createElement('strong'); bold.textContent = label(checkNames[c.id]);
-    const hint = document.createElement('small'); hint.textContent = c.values;
+    const hint = document.createElement('small'); hint.textContent = checkDetail(c, result);
     text.append(bold, hint); row.append(icon, text); return row;
   }));
   return result;
@@ -113,11 +129,13 @@ function updateLanguage(next) {
   language = ['en','ar','ku','tr'].includes(next) ? next : 'en';
   document.documentElement.lang = language;
   document.documentElement.dir = rtl(language) ? 'rtl' : 'ltr';
+  document.title = label('pageTitle');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = label(el.dataset.i18n); });
   document.querySelectorAll('[data-placeholder]').forEach(el => { el.placeholder = label(el.dataset.placeholder); });
+  document.querySelectorAll('[data-aria-label]').forEach(el => { el.setAttribute('aria-label', label(el.dataset.ariaLabel)); });
   $('language').value = language;
   renderJournal(); update();
-  if (!fileSummary) $('file-info').textContent = label('fileIdle');
+  if (!fileSummary) renderFileStatus();
   else renderFile();
 }
 function renderFile() {
@@ -125,38 +143,39 @@ function renderFile() {
   const r = fileSummary;
   $('file-info').className = 'file-report';
   const container = $('file-info'); container.replaceChildren();
-  const name = document.createElement('strong'); name.textContent = fileDescription?.name || '';
-  const note = document.createElement('p'); note.textContent = `${r.words} ${label('words')} · ${fileDescription?.size || ''}${fileDescription?.pages ? ` · ${fileDescription.pages} pages` : ''}${fileDescription?.partial ? ' · first 30 pages inspected' : ''}`;
+  const name = document.createElement('strong'); name.textContent = fileDescription?.name || ''; name.dir = 'auto';
+  const note = document.createElement('p'); note.textContent = `${r.words} ${label('words')} · ${label('fileSize', {count:Math.round(fileDescription.bytes / 1024)})}${fileDescription?.pages ? ` · ${label('filePages', {count:fileDescription.pages})}` : ''}${fileDescription?.partial ? ` · ${label('filePartial')}` : ''}`;
   const ul = document.createElement('ul');
-  const headings = [['abstract','Abstract heading'],['keywords','Keywords heading'],['methods','Methods heading'],['references','References heading']];
+  const headings = [['abstract','headingAbstract'],['keywords','headingKeywords'],['methods','headingMethods'],['references','headingReferences']];
   for (const [key,title] of headings) {
     const li = document.createElement('li'); li.className = r.headings[key] ? 'file-good' : 'file-warn';
-    li.textContent = `${r.headings[key] ? '✓' : '○'} ${title}: ${label(r.headings[key] ? 'detected' : 'notDetected')}`; ul.append(li);
+    li.textContent = `${r.headings[key] ? '✓' : '○'} ${label(title)}: ${label(r.headings[key] ? 'detected' : 'notDetected')}`; ul.append(li);
   }
-  const li = document.createElement('li'); li.textContent = r.dois.length ? `${r.dois.length} DOI pattern(s): ${r.dois.slice(0,3).join(' · ')}` : label('noDois'); ul.append(li);
-  const hint = document.createElement('p'); hint.textContent = r.note;
+  const li = document.createElement('li'); li.textContent = r.dois.length ? `${label('doiPatterns', {count:r.dois.length})}: ${r.dois.slice(0,3).join(' · ')}` : label('noDois'); ul.append(li);
+  const hint = document.createElement('p'); hint.textContent = label('headingNote');
   container.append(name, note, ul, hint);
   $('doi-zone').hidden = r.dois.length === 0;
-  $('doi-result').textContent = checkedDoi || '';
+  renderDoi();
 }
 async function onUpload() {
   invalidateFile();
   const generation = fileGeneration;
   const file = $('manuscript-file').files?.[0];
-  if (!file) { $('file-info').textContent = label('fileIdle'); return; }
-  $('file-info').className = 'file-empty'; $('file-info').textContent = 'Inspecting manuscript locally…';
+  if (!file) { renderFileStatus(); return; }
+  fileStatus = {key:'fileInspecting'}; renderFileStatus();
   $('doi-zone').hidden = true; checkedDoi = null;
   try {
     const extracted = await readManuscriptFile(file);
     if (generation !== fileGeneration) return;
     fileSummary = inspectText(extracted.text);
-    fileDescription = { name:file.name, size:`${(file.size / 1024).toFixed(0)} KB`, pages:extracted.pages, partial:extracted.partial };
+    fileDescription = { name:file.name, bytes:file.size, pages:extracted.pages, partial:extracted.partial };
+    fileStatus = null;
     renderFile();
   } catch (e) {
     if (generation !== fileGeneration) return;
     fileSummary = null; fileDescription = null;
-    $('file-info').textContent = e.message || 'Unable to inspect the selected file.';
-    $('file-info').className = 'error file-empty';
+    const key = e.name === 'PasswordException' ? 'filePassword' : e.name === 'InvalidPDFException' ? 'fileInvalidPdf' : typeof e.code === 'string' && label(e.code) !== e.code ? e.code : 'fileReadError';
+    fileStatus = { key, error:true }; renderFileStatus();
   }
 }
 async function verifyDoi() {
@@ -168,16 +187,16 @@ async function verifyDoi() {
   const current = () => generation === fileGeneration && doiController === controller;
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
-  const button = $('verify-doi'); button.disabled = true; $('doi-result').textContent = label('verifyPending');
+  const button = $('verify-doi'); checkedDoi = null; button.disabled = true; $('doi-result').textContent = label('verifyPending');
   try {
     const response = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`, { headers:{ Accept:'application/json' }, signal:controller.signal, referrerPolicy:'no-referrer', credentials:'omit' });
     if (!current()) return;
-    if (response.status === 404) checkedDoi = `DOI not found in Crossref: ${doi} (does not necessarily mean invalid).`;
-    else if (response.status === 429) checkedDoi = label('verifyRateLimit');
-    else if (!response.ok) checkedDoi = `Crossref returned HTTP ${response.status}.`;
-    else { const data = await response.json(); if (!current()) return; checkedDoi = `Crossref record found: ${(data.message?.title?.[0] || doi).slice(0,180)}.`; }
-  } catch { if (current()) checkedDoi = timedOut ? label('verifyTimeout') : 'Could not complete the Crossref lookup. Try again later.'; }
-  finally { clearTimeout(timer); if (current()) { doiController = null; button.disabled = false; $('doi-result').textContent = checkedDoi; } }
+    if (response.status === 404) checkedDoi = {key:'verifyNotFound',params:{doi}};
+    else if (response.status === 429) checkedDoi = {key:'verifyRateLimit'};
+    else if (!response.ok) checkedDoi = {key:'verifyHttp',params:{status:response.status}};
+    else { const data = await response.json(); if (!current()) return; checkedDoi = {key:'verifyFound',params:{title:String(data.message?.title?.[0] || doi).slice(0,180)}}; }
+  } catch { if (current()) checkedDoi = {key:timedOut ? 'verifyTimeout' : 'verifyFailed'}; }
+  finally { clearTimeout(timer); if (current()) { doiController = null; button.disabled = false; renderDoi(); } }
 }
 function download(filename, content, mime) {
   const href = URL.createObjectURL(new Blob([content], { type:mime }));
@@ -185,20 +204,26 @@ function download(filename, content, mime) {
   setTimeout(() => URL.revokeObjectURL(href), 2000);
 }
 function reportData() {
-  return { generatedAt: new Date().toISOString(), project:'Open Journal Checker', version:'1.0.0', journal:config.journalName,
-    disclaimer:'Advisory preparation report; not an editorial decision or plagiarism check.', manuscript:getManuscript(), evaluation:update(),
-    fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, pages:fileDescription?.pages, partial:fileDescription?.partial } : null,
-    crossrefResult:checkedDoi };
+  const evaluation = update();
+  const localizedEvaluation = { ...evaluation, checks:evaluation.checks.map(check => ({ ...check, values:checkDetail(check, evaluation) })) };
+  return { generatedAt: new Date().toISOString(), language, project:'Open Journal Checker', version:'1.0.0', journal:config.journalName,
+    disclaimer:label('advisoryReport'), manuscript:getManuscript(), evaluation:localizedEvaluation,
+    fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, note:label('headingNote'), pages:fileDescription?.pages, partial:fileDescription?.partial } : null,
+    crossrefResult:checkedDoi ? label(checkedDoi.key, checkedDoi.params) : null };
 }
 function renderReportHtml(data) {
   const { evaluation:r, manuscript:m } = data;
-  const li = (a,b) => `<tr><td>${escapeHtml(a)}</td><td>${escapeHtml(b)}</td></tr>`;
-  const list = [ ...r.checks.map(c=>li(label(checkNames[c.id]), c.pass ? 'PASS' : 'TO CHECK')),
-    ...r.confirmations.map(c=>li(c.description,c.pass ? 'CONFIRMED' : 'UNCONFIRMED')) ].join('');
+  const lang = ['en','ar','ku','tr'].includes(data.language) ? data.language : language;
+  const L = (key, params) => t(lang, key, params);
+  const E = escapeHtml;
+  const li = (a,b) => `<tr><td dir="auto">${E(a)}</td><td dir="auto">${E(b)}</td></tr>`;
+  const list = [ ...r.checks.map(c=>li(L(checkNames[c.id]), L(c.pass ? 'pass' : 'pending'))),
+    ...r.confirmations.map(c=>li(c.description,L(c.pass ? 'confirmed' : 'unconfirmed'))) ].join('');
   const file = data.fileInspection;
-  const fileHtml = file ? `<h2>File inspection</h2><p>${escapeHtml(file.filename)} — ${file.words} words, ${file.dois.length} DOI patterns.</p><p>${escapeHtml(file.note)}</p>` : '<p>No manuscript file was inspected.</p>';
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Preparation report — ${escapeHtml(data.journal)}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold;white-space:nowrap}.muted{color:#637687}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#985e24}@media print{body{margin:20px auto}}</style></head><body><h1>${escapeHtml(data.journal)} — Author preparation report</h1><p class="muted">Generated ${escapeHtml(data.generatedAt)} by Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} checks complete (${r.percentage}%)</strong></p><h2>Manuscript</h2><p><strong>Title:</strong> ${escapeHtml(m.title || 'Not entered')}</p><p><strong>Article type:</strong> ${escapeHtml(m.articleType || 'Not selected')} · <strong>Subject:</strong> ${escapeHtml(m.subject || 'Not selected')}</p><p><strong>Abstract:</strong> ${r.words.abstract} words · <strong>Keywords:</strong> ${escapeHtml(m.keywords || 'Not entered')}</p><h2>Checklist</h2><table>${list}</table>${fileHtml}<h2>Important</h2><p class="note">${escapeHtml(data.disclaimer)} Review the current journal guidelines. Scores are not a measure of scientific quality or acceptance likelihood.</p></body></html>`;
+  const fileHtml = file ? `<h2>${E(L('fileInspection'))}</h2><p><bdi>${E(file.filename)}</bdi> — ${E(L('fileReportSummary',{words:file.words,dois:file.dois.length}))}</p><p>${E(L('headingNote'))}</p>` : `<p>${E(L('notInspected'))}</p>`;
+  return `<!doctype html><html lang="${lang}" dir="${rtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="UTF-8"><title>${E(L('reportTitle'))} — ${E(data.journal)}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px;overflow-wrap:anywhere}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold}.muted{color:#546579}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#91591f}@media print{body{margin:20px auto}}</style></head><body><h1><bdi>${E(data.journal)}</bdi> — ${E(L('reportTitle'))}</h1><p class="muted">${E(L('generated'))}: ${E(new Date(data.generatedAt).toLocaleString(lang))} · Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} ${E(L('checkComplete'))} (${r.percentage}%)</strong></p><h2>${E(L('manuscript'))}</h2><p><strong>${E(L('title'))}:</strong> <bdi>${E(m.title || L('notEntered'))}</bdi></p><p><strong>${E(L('articleType'))}:</strong> <bdi>${E(m.articleType || L('notSelected'))}</bdi> · <strong>${E(L('subject'))}:</strong> <bdi>${E(m.subject || L('notSelected'))}</bdi></p><p><strong>${E(L('abstract'))}:</strong> ${r.words.abstract} ${E(L('words'))} · <strong>${E(L('keywords'))}:</strong> <bdi>${E(m.keywords || L('notEntered'))}</bdi></p><h2>${E(L('checklist'))}</h2><table>${list}</table>${fileHtml}<h2>${E(L('important'))}</h2><p class="note">${E(L('advisoryReport'))} ${E(L('reportGuidance'))}</p><p class="muted">${E(L('journalContentNote'))}</p></body></html>`;
 }
+
 function openSettings() {
   const form = $('settings-form');
   const flat = ['journalName','journalShortName','journalWebsite','guidelinesUrl','submissionUrl','logoUrl','accent','titleMaxWords','abstractMinWords','abstractMaxWords','keywordsMin','keywordsMax','extraGuidance'];
@@ -245,9 +270,9 @@ function attach() {
   $('config-import-trigger').addEventListener('click',()=>$('config-import').click());
   $('config-import').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
-    try { if(file.size>100000)throw new Error('Configuration must be under 100 KB.');
+    try { if(file.size>100000)throw Object.assign(new Error('Configuration must be under 100 KB.'),{code:'configTooLarge'});
       replaceConfig(JSON.parse(await file.text()));const saved=persistConfig();openSettings();renderJournal();update();flash(label(saved ? 'saved' : 'storageUnavailable'),!saved);
-    } catch(err){flash(`${label('invalidConfig')} ${err.message}`,true)}finally{e.target.value='';}
+    } catch(err){flash(label(err.code === 'configTooLarge' ? 'configTooLarge' : 'invalidConfig'),true)}finally{e.target.value='';}
   });
 }
 async function loadHostedConfig() {

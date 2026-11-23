@@ -104,6 +104,14 @@ A hosted configuration that finishes loading after a local save, import or reset
 
 DOI extraction combines case-insensitive duplicates and removes common trailing citation punctuation while preserving balanced parentheses. This remains a heuristic, not proof of registration or a complete parser for every historical DOI format. Crossref explains these [regular-expression limitations](https://www.crossref.org/blog/dois-and-matching-regular-expressions/). Optional Crossref requests time out after 15 seconds and provide retry guidance when rate-limited; a Crossref 404 does not prove that a DOI is invalid.
 
+## Localization
+
+The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection itself still uses English patterns; changing the interface language does not change this limitation or the readiness rules.
+
+Journal names, article types, subject terms, policies and author declarations remain exactly as supplied by the journal. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
+
+Translations are in `js/i18n.js` and `js/messages.js`. Tests require equal key coverage and matching template parameters in every locale, and exercise localized downloads in Chromium and Firefox. Native-speaker review remains welcome, especially for Kurdish Badini; automated checks establish coverage and behavior, not linguistic certification.
+
 ## Privacy, licenses and security
 
 Manuscript text is not uploaded or stored in the application. Temporary manuscript entries vanish when the page reloads. Journal settings alone are stored in `localStorage` once saved. PDF extraction loads PDF.js 6.5.438 code from jsDelivr; optional DOI verification makes a Crossref request. See [SECURITY.md](SECURITY.md).
