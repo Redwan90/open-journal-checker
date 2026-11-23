@@ -6,13 +6,13 @@ import { readPdfDocument, readPdfTask } from '../js/files.js';
 import { inspectText } from '../js/checker.js';
 
 const deferred = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
-function app(readManuscriptFile, fetch = () => {}) {
+function app(readManuscriptFile, fetch = () => {}, timers = {}) {
   const nodes = new Map();
   const node = id => { if (!nodes.has(id)) nodes.set(id, {value:'',textContent:'',hidden:false,disabled:false,files:[],classList:{toggle(){}},replaceChildren(){}}); return nodes.get(id); };
   const source = readFileSync(new URL('../js/main.js', import.meta.url), 'utf8')
     .replace(/^import .*;\r?\n/gm, '').replace("attach(); updateLanguage('en'); loadHostedConfig();", '');
   const context = vm.createContext({document:{getElementById:node}, localStorage:{getItem:()=>null}, normalizeConfig:()=>({}),
-    readManuscriptFile, inspectText, isDoi:()=>true, t:(_,key)=>key, AbortController, setTimeout:()=>0, clearTimeout(){}, fetch});
+    readManuscriptFile, inspectText, isDoi:()=>true, t:(_,key)=>key, AbortController, setTimeout:()=>0, clearTimeout(){}, fetch, ...timers});
   vm.runInContext(source + '\nrenderFile = () => {}; renderConfirmations = () => {}; update = () => {};', context);
   return {node, run:code=>vm.runInContext(code, context)};
 }
@@ -48,6 +48,26 @@ test('Clear aborts DOI lookup and ignores a late JSON response', async () => {
   pending.resolve({message:{title:['Old record']}}); await lookup;
   assert.equal(a.run('checkedDoi'),null);
   assert.equal(a.node('doi-result').textContent,'');
+  assert.equal(a.node('verify-doi').disabled,false);
+});
+
+test('Crossref timeout aborts the request and restores the lookup button',async()=>{
+  let timeout,signal,cleared=false;
+  const a=app(()=>{},(_,opts)=>new Promise((_,reject)=>{
+    signal=opts.signal;signal.addEventListener('abort',()=>reject(new Error('Aborted')));
+  }),{setTimeout(fn,ms){assert.equal(ms,15000);timeout=fn;return 1;},clearTimeout(){cleared=true;}});
+  a.run("fileSummary={dois:['10.1234/test']}");
+  const lookup=a.run('verifyDoi()'); timeout(); await lookup;
+  assert.equal(signal.aborted,true);
+  assert.equal(a.node('doi-result').textContent,'verifyTimeout');
+  assert.equal(a.node('verify-doi').disabled,false);
+  assert.equal(cleared,true);
+});
+
+test('Crossref rate limits produce retry guidance instead of a generic HTTP error',async()=>{
+  const a=app(()=>{},async()=>({status:429,ok:false}));
+  a.run("fileSummary={dois:['10.1234/test']}"); await a.run('verifyDoi()');
+  assert.equal(a.node('doi-result').textContent,'verifyRateLimit');
   assert.equal(a.node('verify-doi').disabled,false);
 });
 

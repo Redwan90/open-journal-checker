@@ -100,6 +100,10 @@ This is **self-reported preparation**, not a scientific or editorial quality met
 
 Saving, importing, resetting, or loading a hosted journal configuration clears all author confirmations, even if the declaration wording is unchanged. Authors must review and confirm the active journal rules again. Changing the interface language preserves confirmations.
 
+A hosted configuration that finishes loading after a local save, import or reset is ignored. If browser storage is blocked or full, settings still apply to the current session and a notice explains that they could not be persisted.
+
+DOI extraction combines case-insensitive duplicates and removes common trailing citation punctuation while preserving balanced parentheses. This remains a heuristic, not proof of registration or a complete parser for every historical DOI format. Crossref explains these [regular-expression limitations](https://www.crossref.org/blog/dois-and-matching-regular-expressions/). Optional Crossref requests time out after 15 seconds and provide retry guidance when rate-limited; a Crossref 404 does not prove that a DOI is invalid.
+
 ## Privacy, licenses and security
 
 Manuscript text is not uploaded or stored in the application. Temporary manuscript entries vanish when the page reloads. Journal settings alone are stored in `localStorage` once saved. PDF extraction loads PDF.js 6.5.438 code from jsDelivr; optional DOI verification makes a Crossref request. See [SECURITY.md](SECURITY.md).

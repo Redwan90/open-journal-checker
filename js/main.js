@@ -8,8 +8,19 @@ const $ = id => document.getElementById(id);
 const escapeHtml = input => String(input ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const urlSafe = v => { try { const u = new URL(v); return ['http:', 'https:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } };
 const STORAGE = 'open-journal-checker-config-v1';
+function storedConfig() {
+  try { return localStorage.getItem(STORAGE); } catch { return null; }
+}
+function persistConfig(remove = false) {
+  try {
+    if (remove) localStorage.removeItem(STORAGE);
+    else localStorage.setItem(STORAGE, JSON.stringify(config));
+    return true;
+  } catch { return false; }
+}
 let config;
-try { config = normalizeConfig(JSON.parse(localStorage.getItem(STORAGE) || '{}')); } catch { config = normalizeConfig(); }
+try { config = normalizeConfig(JSON.parse(storedConfig() || '{}')); } catch { config = normalizeConfig(); }
+let configRevision = 0;
 let language = 'en';
 let fileSummary = null;
 let fileDescription = null;
@@ -18,6 +29,7 @@ let confirmationSet = new Set();
 function replaceConfig(input) {
   const next = normalizeConfig(input);
   config = next;
+  configRevision++;
   // Author consent belongs to the current journal rules, never to array positions.
   // Language changes only re-render and do not call this function.
   confirmationSet.clear();
@@ -154,15 +166,18 @@ async function verifyDoi() {
   const controller = new AbortController();
   doiController?.abort(); doiController = controller;
   const current = () => generation === fileGeneration && doiController === controller;
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
   const button = $('verify-doi'); button.disabled = true; $('doi-result').textContent = label('verifyPending');
   try {
     const response = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`, { headers:{ Accept:'application/json' }, signal:controller.signal, referrerPolicy:'no-referrer', credentials:'omit' });
     if (!current()) return;
     if (response.status === 404) checkedDoi = `DOI not found in Crossref: ${doi} (does not necessarily mean invalid).`;
+    else if (response.status === 429) checkedDoi = label('verifyRateLimit');
     else if (!response.ok) checkedDoi = `Crossref returned HTTP ${response.status}.`;
     else { const data = await response.json(); if (!current()) return; checkedDoi = `Crossref record found: ${(data.message?.title?.[0] || doi).slice(0,180)}.`; }
-  } catch { if (current()) checkedDoi = 'Could not connect to Crossref. Try again later.'; }
-  finally { if (current()) { doiController = null; button.disabled = false; $('doi-result').textContent = checkedDoi; } }
+  } catch { if (current()) checkedDoi = timedOut ? label('verifyTimeout') : 'Could not complete the Crossref lookup. Try again later.'; }
+  finally { clearTimeout(timer); if (current()) { doiController = null; button.disabled = false; $('doi-result').textContent = checkedDoi; } }
 }
 function download(filename, content, mime) {
   const href = URL.createObjectURL(new Blob([content], { type:mime }));
@@ -202,8 +217,8 @@ function saveSettings(e) {
   proposed.subjects = parseSubjects(f.subjects.value);
   proposed.confirmations = f.confirmations.value.split(/\r?\n/);
   replaceConfig(proposed);
-  localStorage.setItem(STORAGE, JSON.stringify(config));
-  $('settings-dialog').close(); renderJournal(); update(); flash(label('saved'));
+  const saved = persistConfig();
+  $('settings-dialog').close(); renderJournal(); update(); flash(label(saved ? 'saved' : 'storageUnavailable'), !saved);
 }
 function clearEntries() {
   invalidateFile();
@@ -226,21 +241,23 @@ function attach() {
   $('close-settings').addEventListener('click',()=>$('settings-dialog').close());
   $('settings-form').addEventListener('submit',saveSettings);
   $('config-export').addEventListener('click',()=>download('journal-settings.json',JSON.stringify(config,null,2),'application/json'));
-  $('config-reset').addEventListener('click',()=>{ replaceConfig(DEFAULT_CONFIG); localStorage.removeItem(STORAGE); openSettings(); renderJournal();update();flash(label('reset')); });
+  $('config-reset').addEventListener('click',()=>{ replaceConfig(DEFAULT_CONFIG); const saved=persistConfig(true); openSettings(); renderJournal();update();flash(label(saved ? 'reset' : 'storageUnavailable'),!saved); });
   $('config-import-trigger').addEventListener('click',()=>$('config-import').click());
   $('config-import').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try { if(file.size>100000)throw new Error('Configuration must be under 100 KB.');
-      replaceConfig(JSON.parse(await file.text()));localStorage.setItem(STORAGE,JSON.stringify(config));openSettings();renderJournal();update();flash(label('saved'));
+      replaceConfig(JSON.parse(await file.text()));const saved=persistConfig();openSettings();renderJournal();update();flash(label(saved ? 'saved' : 'storageUnavailable'),!saved);
     } catch(err){flash(`${label('invalidConfig')} ${err.message}`,true)}finally{e.target.value='';}
   });
 }
 async function loadHostedConfig() {
-  if (localStorage.getItem(STORAGE)) return; // Local editor overrides a deployed preset.
+  if (storedConfig()) return; // Local editor overrides a deployed preset.
+  const revision = configRevision;
   try {
     const response = await fetch('./journal-settings.json', { cache: 'no-store' });
     if (!response.ok) return;
     const hosted = await response.json();
+    if (revision !== configRevision || storedConfig()) return;
     replaceConfig(hosted);
     renderJournal(); update();
   } catch { /* Static host has no JSON configuration; use the built-in demo. */ }

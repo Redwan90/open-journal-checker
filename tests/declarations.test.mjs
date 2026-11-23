@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { DEFAULT_CONFIG, normalizeConfig, parseSubjects } from '../js/config.js';
 import { evaluate } from '../js/checker.js';
 
-function app(fetch = async () => ({ok:false})) {
+function app(fetch = async () => ({ok:false}), storage = {getItem:()=>null,setItem(){},removeItem(){}}) {
   const nodes = new Map();
   const node = id => {
     if (!nodes.has(id)) nodes.set(id, {value:'', files:[], listeners:{},
@@ -17,7 +17,7 @@ function app(fetch = async () => ({ok:false})) {
     .replace(/^import .*;\r?\n/gm,'').replace("attach(); updateLanguage('en'); loadHostedConfig();",'');
   const context=vm.createContext({
     document:{getElementById:node,documentElement:{},querySelectorAll:()=>[]},
-    localStorage:{getItem:()=>null,setItem(){},removeItem(){}},
+    localStorage:storage,
     DEFAULT_CONFIG,normalizeConfig,parseSubjects,evaluate,fetch,
     t:(_,key)=>key,rtl:()=>false,setTimeout:()=>0,clearTimeout(){}
   });
@@ -92,4 +92,50 @@ test('Language switching preserves existing confirmations',()=>{
   const a=app(); a.seed();
   a.run("updateLanguage('tr')");
   assert.equal(a.confirmed(),2);
+});
+
+for(const action of ['save','import','reset']) {
+  test(`Late hosted JSON cannot overwrite a local ${action} or renewed confirmation`,async()=>{
+    let resolve;
+    const pending=new Promise(r=>{resolve=r;});
+    const a=app(async()=>({ok:true,json:()=>pending})); a.seed();
+    const loading=a.run('loadHostedConfig()'); await Promise.resolve();
+    if(action==='save') a.save(['Local declaration']);
+    else if(action==='reset') a.node('config-reset').listeners.click();
+    else await a.node('config-import').listeners.change({target:{files:[{size:50,text:async()=>'{"confirmations":["Imported declaration"]}'}],value:'config.json'}});
+    const expected=a.run('config.confirmations[0]');
+    a.run('confirmationSet.add(0)');
+    resolve({confirmations:['Stale hosted declaration']}); await loading;
+    assert.equal(a.run('config.confirmations[0]'),expected);
+    assert.equal(a.confirmed(),1);
+  });
+}
+
+test('Hosted JSON respects a storage override created by another tab',async()=>{
+  let resolve, stored=null;
+  const pending=new Promise(r=>{resolve=r;});
+  const a=app(async()=>({ok:true,json:()=>pending}),{getItem:()=>stored});
+  const loading=a.run('loadHostedConfig()'); await Promise.resolve();
+  stored='{"journalName":"Other tab"}';
+  resolve({journalName:'Late hosted journal'}); await loading;
+  assert.equal(a.run('config.journalName'),DEFAULT_CONFIG.journalName);
+});
+
+test('Blocked storage reads do not stop hosted defaults from loading',async()=>{
+  const a=app(async()=>({ok:true,json:async()=>({journalName:'Hosted journal'})}),{getItem(){throw new Error('Blocked');}});
+  await a.run('loadHostedConfig()');
+  assert.equal(a.run('config.journalName'),'Hosted journal');
+});
+
+test('Failed storage writes and removal still apply save, import and reset in memory',async()=>{
+  const a=app(undefined,{getItem:()=>null,setItem(){throw new Error('Quota');},removeItem(){throw new Error('Blocked');}});
+  a.save(['Session declaration']);
+  assert.equal(a.run('config.confirmations[0]'),'Session declaration');
+  assert.equal(a.node('toast').textContent,'storageUnavailable');
+  await a.node('config-import').listeners.change({target:{files:[{size:50,text:async()=>'{"confirmations":["Imported session declaration"]}'}],value:'config.json'}});
+  assert.equal(a.run('config.confirmations[0]'),'Imported session declaration');
+  assert.equal(a.node('toast').textContent,'storageUnavailable');
+  a.node('config-reset').listeners.click();
+  assert.equal(a.run('config.journalName'),DEFAULT_CONFIG.journalName);
+  assert.equal(a.node('toast').textContent,'storageUnavailable');
 });

@@ -46,11 +46,28 @@ export function evaluate(manuscript, config) {
 }
 export function extractDois(text = '') {
   const input = String(text);
-  const matches = input.match(/(?:https?:\/\/(?:dx\.)?doi\.org\/|\bdoi\s*:\s*)?10\.\d{4,9}\/[\w.()/:;+-]+/gi) || [];
-  return [...new Set(matches.map(raw => {
-    const doi = raw.replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:\s*)/i, '').replace(/[.,;:]+$/, '');
-    return doi;
-  }).filter(isDoi))];
+  const matches = input.match(/(?:https?:\/\/(?:dx\.)?doi\.org\/|\bdoi\s*:\s*)?\b10\.\d{4,9}\/[\w.()/:;+-]+/gi) || [];
+  const unique = new Map();
+  for (const raw of matches) {
+    let doi = raw.replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:\s*)/i, '');
+    // Citation punctuation is ambiguous; preserve balanced DOI parentheses.
+    let excess = 0;
+    for (const character of doi) {
+      if (character === ')') excess++;
+      else if (character === '(') excess--;
+    }
+    let end = doi.length;
+    while (end > 0) {
+      const last = doi[end - 1];
+      if ('.,;:'.includes(last)) end--;
+      else if (last === ')' && excess > 0) { end--; excess--; }
+      else break;
+    }
+    doi = doi.slice(0, end);
+    const key = doi.toLowerCase();
+    if (isDoi(doi) && !unique.has(key)) unique.set(key, doi);
+  }
+  return [...unique.values()];
 }
 export function isDoi(value = '') { return /^10\.\d{4,9}\/\S+$/i.test(String(value).trim()); }
 export function inspectText(text = '') {
