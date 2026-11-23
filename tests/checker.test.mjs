@@ -61,6 +61,13 @@ test('Extract DOI patterns, avoiding duplicate prefixes and punctuation', () => 
  const dois=extractDois('See https://doi.org/10.1000/ABC123. Another DOI:10.1000/ABC123; and doi: 10.5555/test-one');
  assert.deepEqual(dois,['10.1000/ABC123','10.5555/test-one']);
 });
+
+test('DOI extraction removes citation parentheses, preserves balanced suffixes and deduplicates case',()=>{
+ assert.deepEqual(extractDois('(https://doi.org/10.1000/ABC). doi:10.1000/abc;'),['10.1000/ABC']);
+ assert.deepEqual(extractDois('(10.1000/item(part)). 10.1000/next'),['10.1000/item(part)','10.1000/next']);
+ assert.deepEqual(extractDois('110.1000/not-a-doi'),[]);
+ assert.deepEqual(extractDois('10.1000/item'+')'.repeat(100000)),['10.1000/item']);
+});
 test('Detect document sections from plain text', () => {
  const r=inspectText('Abstract\nSome results\nKeywords: AI; Health\nMethods\nAnalysis\nReferences\nAuthor 10.1234/abc');
  assert.equal(r.headings.abstract,true);

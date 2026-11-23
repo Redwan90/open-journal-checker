@@ -149,5 +149,9 @@ const tr = {
   "journalWebsiteLabel": "Dergi web sitesi ↗"
 };
 const dict = { en, ar, ku, tr };
+Object.assign(en, { storageUnavailable:'Changes apply to this session only. Browser settings could not be updated.', verifyTimeout:'Crossref lookup timed out. Please try again.', verifyRateLimit:'Crossref is limiting requests. Please wait and try again.' });
+Object.assign(ar, { storageUnavailable:'تسري التغييرات على هذه الجلسة فقط. تعذّر تحديث إعدادات المتصفح.', verifyTimeout:'انتهت مهلة البحث في Crossref. حاول مرة أخرى.', verifyRateLimit:'يحدّ Crossref عدد الطلبات. انتظر ثم حاول مرة أخرى.' });
+Object.assign(ku, { storageUnavailable:'گۆهۆڕین بتنێ بۆ ڤێ دانیشتنێ نە. رێکخستنێن وێبگەڕێ نەهاتنە نووکرن.', verifyTimeout:'دەمێ پشکنینا Crossref تەمام بوو. دووبارە هەوڵ بدە.', verifyRateLimit:'Crossref هژمارا داخوازان سنووردار دکەت. چاڤەرێ بە و دووبارە هەوڵ بدە.' });
+Object.assign(tr, { storageUnavailable:'Değişiklikler yalnızca bu oturum için geçerlidir. Tarayıcı ayarları güncellenemedi.', verifyTimeout:'Crossref sorgusu zaman aşımına uğradı. Lütfen tekrar deneyin.', verifyRateLimit:'Crossref istekleri sınırlandırıyor. Lütfen bekleyip tekrar deneyin.' });
 export function t(language, key) { return dict[language]?.[key] || en[key] || key; }
 export function rtl(language) { return language === 'ar' || language === 'ku'; }
