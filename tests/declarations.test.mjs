@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import { DEFAULT_CONFIG, normalizeConfig, parseSubjects } from '../js/config.js';
 import { evaluate } from '../js/checker.js';
+import { VERSION } from '../js/version.js';
 
 function app(fetch = async () => ({ok:false}), storage = {getItem:()=>null,setItem(){},removeItem(){}}) {
   const nodes = new Map();
@@ -18,7 +19,7 @@ function app(fetch = async () => ({ok:false}), storage = {getItem:()=>null,setIt
   const context=vm.createContext({
     document:{getElementById:node,documentElement:{},querySelectorAll:()=>[]},
     localStorage:storage,
-    DEFAULT_CONFIG,normalizeConfig,parseSubjects,evaluate,fetch,
+    DEFAULT_CONFIG,normalizeConfig,parseSubjects,evaluate,fetch,VERSION,
     t:(_,key)=>key,rtl:()=>false,setTimeout:()=>0,clearTimeout(){}
   });
   vm.runInContext(source + `

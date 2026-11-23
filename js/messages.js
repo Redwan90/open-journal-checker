@@ -65,7 +65,8 @@ export const messages = {
     "docxTextMode": "Inserted text is included; deleted and moved-from run text is excluded.",
     "docxNotes": "Includes {footnotes} footnotes and {endnotes} endnotes. Body headings are checked separately.",
     "docxMissingNotes": "{count} referenced notes could not be found; inspection is incomplete.",
-    "pdfNoText": "No extractable PDF text was found. This may be a scanned or image-only file; OCR is not provided."
+    "pdfNoText": "No extractable PDF text was found. This may be a scanned or image-only file; OCR is not provided.",
+    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Files are inspected on this device."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -132,7 +133,8 @@ export const messages = {
     "docxTextMode": "يُضمّن النص المُدرج، ويُستبعد نص المقاطع المحذوفة والمنقولة من موضعها.",
     "docxNotes": "يتضمن {footnotes} حواشي سفلية و{endnotes} حواشي ختامية. تُفحص عناوين المتن بشكل منفصل.",
     "docxMissingNotes": "تعذّر العثور على {count} حواشٍ مشار إليها؛ الفحص غير مكتمل.",
-    "pdfNoText": "لم يُعثر على نص قابل للاستخراج في PDF. قد يكون ممسوحاً ضوئياً أو صوراً فقط؛ لا تتوفر ميزة OCR."
+    "pdfNoText": "لم يُعثر على نص قابل للاستخراج في PDF. قد يكون ممسوحاً ضوئياً أو صوراً فقط؛ لا تتوفر ميزة OCR.",
+    "fileLimitLocal": "DOCX حتى 12MB / PDF حتى 15MB · تُفحص الملفات على هذا الجهاز."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -199,7 +201,8 @@ export const messages = {
     "docxTextMode": "دەقێ زێدەکری دهێتە هژمارتن؛ دەقێ ژێبری و گواستی ژ شوینێ خۆ ناهێتە هژمارتن.",
     "docxNotes": "{footnotes} پەراوێزێن لاپەڕێ و {endnotes} پەراوێزێن دوماهیێ هاتنە هژمارتن. سەردێڕێن دەقێ سەرەکی جودا دهێنە پشکنین.",
     "docxMissingNotes": "{count} پەراوێزێن ئاماژەپێکری نەهاتنە دیتن؛ پشکنین نەتەمامە.",
-    "pdfNoText": "دەقەکێ PDF یا خواندنێ نەهاتە دیتن. دکاریت فایل وێنە یان سکان بیت؛ OCR بەردەست نینە."
+    "pdfNoText": "دەقەکێ PDF یا خواندنێ نەهاتە دیتن. دکاریت فایل وێنە یان سکان بیت؛ OCR بەردەست نینە.",
+    "fileLimitLocal": "DOCX 12MB / PDF 15MB · فایل ل سەر ڤێ ئامێرێ دهێنە پشکنین."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -266,6 +269,7 @@ export const messages = {
     "docxTextMode": "Eklenen metin dahil edilir; silinen ve taşınan metnin eski konumu hariç tutulur.",
     "docxNotes": "{footnotes} dipnot ve {endnotes} sonnot içerir. Gövde başlıkları ayrı denetlenir.",
     "docxMissingNotes": "Atıfta bulunulan {count} not bulunamadı; inceleme eksik.",
-    "pdfNoText": "PDF’te çıkarılabilir metin bulunamadı. Dosya taranmış veya yalnızca görüntü içeriyor olabilir; OCR sunulmaz."
+    "pdfNoText": "PDF’te çıkarılabilir metin bulunamadı. Dosya taranmış veya yalnızca görüntü içeriyor olabilir; OCR sunulmaz.",
+    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Dosyalar bu cihazda incelenir."
   }
 };

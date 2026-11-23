@@ -13,3 +13,5 @@ coverage/
 *.zip
 *.pdf
 *.docx
+
+dist/
