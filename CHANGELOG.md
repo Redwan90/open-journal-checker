@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 — 2026-11-23
+
+- Translate default demo declarations, journal name, article types, subject labels and guidance in Arabic, Kurdish Badini and Turkish, including downloaded HTML reports.
+- Preserve selections and confirmed declarations across language changes, while keeping custom journal wording unchanged.
+- Link Ridwan Shamoun’s footer credit to https://ridwanmarqas.com/ and the journal website to https://mwsjournal.com/.
+
 ## 1.1.0 — 2026-11-23
 
 ### Fixed

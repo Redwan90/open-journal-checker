@@ -1,3 +1,4 @@
+import { journalText } from '../js/journal-i18n.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -16,7 +17,7 @@ function app(fetch = async () => ({ok:false}), storage = {getItem:()=>null,setIt
   };
   const source = readFileSync(new URL('../js/main.js',import.meta.url),'utf8')
     .replace(/^import .*;\r?\n/gm,'').replace("attach(); updateLanguage('en'); loadHostedConfig();",'');
-  const context=vm.createContext({
+  const context=vm.createContext({journalText,
     document:{getElementById:node,documentElement:{},querySelectorAll:()=>[]},
     localStorage:storage,
     DEFAULT_CONFIG,normalizeConfig,parseSubjects,evaluate,fetch,VERSION,

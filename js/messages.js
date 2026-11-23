@@ -1,4 +1,4 @@
-// Application messages only; journal-authored content remains unchanged.
+// Application messages. Default journal translations are in journal-i18n.js.
 export const messages = {
   "en": {
     "brandSubtitle": "CHECKER / OPEN SOURCE",
@@ -12,7 +12,7 @@ export const messages = {
     "readGuidelines": "Read author guidelines ↗",
     "journalWebsiteLabel": "Journal website ↗",
     "licenseLabel": "Apache-2.0 License ↗",
-    "journalContentNote": "Journal names, policies and declarations remain in the language supplied by the journal.",
+    "journalContentNote": "Default demo journal text is translated. Custom journal text remains in its original language.",
     "checkTitleValue": "{count}/{max} words",
     "checkAbstractValue": "{count} words · {min}–{max} target",
     "checkKeywordsValue": "{count} terms · {min}–{max} required",
@@ -80,7 +80,7 @@ export const messages = {
     "readGuidelines": "اقرأ تعليمات المؤلف ↗",
     "journalWebsiteLabel": "موقع المجلة ↗",
     "licenseLabel": "ترخيص Apache-2.0 ↗",
-    "journalContentNote": "تبقى أسماء المجلات وسياساتها وإقراراتها باللغة التي توفرها المجلة.",
+    "journalContentNote": "تُترجم نصوص المجلة التجريبية الافتراضية. تبقى النصوص المخصصة التي تدخلها المجلة بلغتها الأصلية.",
     "checkTitleValue": "{count}/{max} كلمة",
     "checkAbstractValue": "{count} كلمة · المستهدف {min}–{max}",
     "checkKeywordsValue": "{count} مصطلحات · المطلوب {min}–{max}",
@@ -148,7 +148,7 @@ export const messages = {
     "readGuidelines": "رێنمایێن نڤیسەران بخوینە ↗",
     "journalWebsiteLabel": "وێبسایتا گۆڤارێ ↗",
     "licenseLabel": "مۆڵەتا Apache-2.0 ↗",
-    "journalContentNote": "ناڤ، سیاسەت و پشتڕاستکرنێن گۆڤارێ ب زمانێ گۆڤارێ دمینن.",
+    "journalContentNote": "دەقێن گۆڤارا تاقیکرنێ دهێنە وەرگێڕان. دەقێن تایبەت یێن گۆڤارێ ب زمانێ وان یێ ڕەسەن دمینن.",
     "checkTitleValue": "{count}/{max} پەیڤ",
     "checkAbstractValue": "{count} پەیڤ · ئامانج {min}–{max}",
     "checkKeywordsValue": "{count} پەیڤ · پێدڤی {min}–{max}",
@@ -216,7 +216,7 @@ export const messages = {
     "readGuidelines": "Yazar rehberini oku ↗",
     "journalWebsiteLabel": "Dergi web sitesi ↗",
     "licenseLabel": "Apache-2.0 Lisansı ↗",
-    "journalContentNote": "Dergi adları, politikaları ve beyanları derginin sağladığı dilde kalır.",
+    "journalContentNote": "Varsayılan demo dergisinin metinleri çevrilir. Derginin girdiği özel metinler özgün dilinde kalır.",
     "checkTitleValue": "{count}/{max} kelime",
     "checkAbstractValue": "{count} kelime · hedef {min}–{max}",
     "checkKeywordsValue": "{count} terim · gerekli {min}–{max}",

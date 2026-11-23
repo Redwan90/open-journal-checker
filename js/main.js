@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG, normalizeConfig, parseSubjects } from './config.js';
 import { evaluate, wordCount, parseKeywords, inspectText, isDoi } from './checker.js';
 import { readManuscriptFile } from './files.js';
 import { t, rtl } from './i18n.js';
+import { journalText } from './journal-i18n.js';
 import { VERSION } from './version.js';
 
 const $ = id => document.getElementById(id);
@@ -76,16 +77,16 @@ function setLink(id, url) {
 }
 function renderJournal() {
   document.documentElement.style.setProperty('--accent', config.accent);
-  $('journal-name').textContent = config.journalName;
-  $('guidance').textContent = config.extraGuidance;
+  $('journal-name').textContent = journalText(language, 'name', config.journalName);
+  $('guidance').textContent = journalText(language, 'guidance', config.extraGuidance);
   setLink('journal-website', config.journalWebsite);
   setLink('guidelines-url', config.guidelinesUrl);
   setLink('submission-url', config.submissionUrl);
   $('title-max').textContent = config.titleMaxWords;
   $('abstract-range').textContent = `${config.abstractMinWords}–${config.abstractMaxWords}`;
   const m = getManuscript();
-  $('article-type').replaceChildren(new Option(label('articleHint'), ''), ...config.articleTypes.map(v => new Option(v, v)));
-  $('subject').replaceChildren(new Option(label('subjectHint'), ''), ...config.subjects.map(v => new Option(v.name, v.name)));
+  $('article-type').replaceChildren(new Option(label('articleHint'), ''), ...config.articleTypes.map(v => new Option(journalText(language, 'article', v), v)));
+  $('subject').replaceChildren(new Option(label('subjectHint'), ''), ...config.subjects.map(v => new Option(journalText(language, 'subject', v.name), v.name)));
   $('article-type').value = config.articleTypes.includes(m.articleType) ? m.articleType : '';
   $('subject').value = config.subjects.some(s => s.name === m.subject) ? m.subject : '';
   renderConfirmations();
@@ -93,6 +94,7 @@ function renderJournal() {
 function renderConfirmations() {
   confirmationSet = new Set([...confirmationSet].filter(i => i >= 0 && i < config.confirmations.length));
   $('confirmations').replaceChildren(...config.confirmations.map((description, i) => {
+    description = journalText(language, 'confirmation', description);
     const el = document.createElement('label'); el.className = 'confirm-item';
     const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = confirmationSet.has(i); checkbox.setAttribute('aria-label', description);
     checkbox.addEventListener('change', () => { checkbox.checked ? confirmationSet.add(i) : confirmationSet.delete(i); update(); });
@@ -214,7 +216,7 @@ function download(filename, content, mime) {
 }
 function reportData() {
   const evaluation = update();
-  const localizedEvaluation = { ...evaluation, checks:evaluation.checks.map(check => ({ ...check, values:checkDetail(check, evaluation) })) };
+  const localizedEvaluation = { ...evaluation, confirmations:evaluation.confirmations.map(c => ({...c, description:journalText(language, 'confirmation', c.description)})), checks:evaluation.checks.map(check => ({ ...check, values:checkDetail(check, evaluation) })) };
   return { generatedAt: new Date().toISOString(), language, project:'Open Journal Checker', version:VERSION, journal:config.journalName,
     disclaimer:label('advisoryReport'), manuscript:getManuscript(), evaluation:localizedEvaluation,
     fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, note:label('headingNote'), format:fileDescription.format, notes:fileDescription.notes, missingNotes:fileDescription.missingNotes, pages:fileDescription?.pages, partial:fileDescription?.partial } : null,
@@ -227,10 +229,10 @@ function renderReportHtml(data) {
   const E = escapeHtml;
   const li = (a,b) => `<tr><td dir="auto">${E(a)}</td><td dir="auto">${E(b)}</td></tr>`;
   const list = [ ...r.checks.map(c=>li(L(checkNames[c.id]), L(c.pass ? 'pass' : 'pending'))),
-    ...r.confirmations.map(c=>li(c.description,L(c.pass ? 'confirmed' : 'unconfirmed'))) ].join('');
+    ...r.confirmations.map(c=>li(journalText(lang, 'confirmation', c.description),L(c.pass ? 'confirmed' : 'unconfirmed'))) ].join('');
   const file = data.fileInspection;
   const fileHtml = file ? `<h2>${E(L('fileInspection'))}</h2><p><bdi>${E(file.filename)}</bdi> — ${E(L('fileReportSummary',{words:file.words,dois:file.dois.length}))}</p><p>${E(L('headingNote'))}</p>${parsingNotes(file,L).map(text=>`<p>${E(text)}</p>`).join('')}` : `<p>${E(L('notInspected'))}</p>`;
-  return `<!doctype html><html lang="${lang}" dir="${rtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="UTF-8"><title>${E(L('reportTitle'))} — ${E(data.journal)}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px;overflow-wrap:anywhere}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold}.muted{color:#546579}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#91591f}@media print{body{margin:20px auto}}</style></head><body><h1><bdi>${E(data.journal)}</bdi> — ${E(L('reportTitle'))}</h1><p class="muted">${E(L('generated'))}: ${E(new Date(data.generatedAt).toLocaleString(lang))} · Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} ${E(L('checkComplete'))} (${r.percentage}%)</strong></p><h2>${E(L('manuscript'))}</h2><p><strong>${E(L('title'))}:</strong> <bdi>${E(m.title || L('notEntered'))}</bdi></p><p><strong>${E(L('articleType'))}:</strong> <bdi>${E(m.articleType || L('notSelected'))}</bdi> · <strong>${E(L('subject'))}:</strong> <bdi>${E(m.subject || L('notSelected'))}</bdi></p><p><strong>${E(L('abstract'))}:</strong> ${r.words.abstract} ${E(L('words'))} · <strong>${E(L('keywords'))}:</strong> <bdi>${E(m.keywords || L('notEntered'))}</bdi></p><h2>${E(L('checklist'))}</h2><table>${list}</table>${fileHtml}<h2>${E(L('important'))}</h2><p class="note">${E(L('advisoryReport'))} ${E(L('reportGuidance'))}</p><p class="muted">${E(L('journalContentNote'))}</p></body></html>`;
+  return `<!doctype html><html lang="${lang}" dir="${rtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="UTF-8"><title>${E(L('reportTitle'))} — ${E(journalText(lang, 'name', data.journal))}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px;overflow-wrap:anywhere}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold}.muted{color:#546579}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#91591f}@media print{body{margin:20px auto}}</style></head><body><h1><bdi>${E(journalText(lang, 'name', data.journal))}</bdi> — ${E(L('reportTitle'))}</h1><p class="muted">${E(L('generated'))}: ${E(new Date(data.generatedAt).toLocaleString(lang))} · Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} ${E(L('checkComplete'))} (${r.percentage}%)</strong></p><h2>${E(L('manuscript'))}</h2><p><strong>${E(L('title'))}:</strong> <bdi>${E(m.title || L('notEntered'))}</bdi></p><p><strong>${E(L('articleType'))}:</strong> <bdi>${E(journalText(lang, 'article', m.articleType) || L('notSelected'))}</bdi> · <strong>${E(L('subject'))}:</strong> <bdi>${E(journalText(lang, 'subject', m.subject) || L('notSelected'))}</bdi></p><p><strong>${E(L('abstract'))}:</strong> ${r.words.abstract} ${E(L('words'))} · <strong>${E(L('keywords'))}:</strong> <bdi>${E(m.keywords || L('notEntered'))}</bdi></p><h2>${E(L('checklist'))}</h2><table>${list}</table>${fileHtml}<h2>${E(L('important'))}</h2><p class="note">${E(L('advisoryReport'))} ${E(L('reportGuidance'))}</p><p class="muted">${E(L('journalContentNote'))}</p></body></html>`;
 }
 
 function openSettings() {
