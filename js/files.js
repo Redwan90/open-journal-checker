@@ -1,4 +1,5 @@
 import { parseWordXml } from './wordxml.js';
+import { PDFJS_BASE } from './runtime.js';
 // Local-first file extraction. PDF.js, when needed, loads its code from jsDelivr;
 // the manuscript itself is processed in memory, never uploaded by this application.
 const DOCX_MAX_BYTES = 12 * 1024 * 1024;
@@ -99,10 +100,13 @@ export async function extractDocx(file) {
 
 export async function extractPdf(file) {
   if (file.size > PDF_MAX_BYTES) throw fileError('pdfTooLarge', 'PDF exceeds the 15 MB local-processing limit.');
-  const pdfjs = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.min.mjs')
+  const pdfjs = await import(new URL('build/pdf.min.mjs', PDFJS_BASE).href)
     .catch(() => { throw fileError('pdfLibrary', 'PDF text extraction needs access to the PDF.js library. Connect to the internet or paste your abstract manually.'); });
-  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/pdf.worker.min.mjs';
-  const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), useSystemFonts: true });
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL('build/pdf.worker.min.mjs', PDFJS_BASE).href;
+  const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), useSystemFonts: true,
+    cMapUrl:new URL('cmaps/', PDFJS_BASE).href, cMapPacked:true,
+    standardFontDataUrl:new URL('standard_fonts/', PDFJS_BASE).href,
+    wasmUrl:new URL('wasm/', PDFJS_BASE).href, iccUrl:new URL('iccs/', PDFJS_BASE).href });
   return readPdfTask(task);
 }
 

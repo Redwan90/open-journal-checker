@@ -16,3 +16,5 @@ Please do not include confidential manuscripts, proprietary journal content, API
 - Expanded, evidence-based and configurable reference checks
 - A packaged OJS 3.5-compatible integration plugin (separate repository and compatibility tests)
 - Tests for complicated DOCX and PDF layouts
+
+For release/deployment changes, `npm run test:browser` also builds and checks the same-origin PDF.js distribution. Keep versions synchronized in package/lockfile, `js/version.js`, citation, footer and changelog; `npm test` checks this. Test PRs deploy nothing.

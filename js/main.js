@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG, normalizeConfig, parseSubjects } from './config.js';
 import { evaluate, wordCount, parseKeywords, inspectText, isDoi } from './checker.js';
 import { readManuscriptFile } from './files.js';
 import { t, rtl } from './i18n.js';
+import { VERSION } from './version.js';
 
 const $ = id => document.getElementById(id);
 const escapeHtml = input => String(input ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
@@ -214,7 +215,7 @@ function download(filename, content, mime) {
 function reportData() {
   const evaluation = update();
   const localizedEvaluation = { ...evaluation, checks:evaluation.checks.map(check => ({ ...check, values:checkDetail(check, evaluation) })) };
-  return { generatedAt: new Date().toISOString(), language, project:'Open Journal Checker', version:'1.0.0', journal:config.journalName,
+  return { generatedAt: new Date().toISOString(), language, project:'Open Journal Checker', version:VERSION, journal:config.journalName,
     disclaimer:label('advisoryReport'), manuscript:getManuscript(), evaluation:localizedEvaluation,
     fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, note:label('headingNote'), format:fileDescription.format, notes:fileDescription.notes, missingNotes:fileDescription.missingNotes, pages:fileDescription?.pages, partial:fileDescription?.partial } : null,
     crossrefResult:checkedDoi ? label(checkedDoi.key, checkedDoi.params) : null };
