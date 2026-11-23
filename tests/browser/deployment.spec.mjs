@@ -35,7 +35,7 @@ test('Release build inspects PDF/DOCX with external requests blocked',async({pag
 });
 
 test('Release bundle exposes licenses and excludes repository internals',async({request})=>{
-  for(const path of ['LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
+  for(const path of ['docs/OJS-INTEGRATION.md','LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
     expect((await request.get('/built/'+path)).status()).toBe(200);
   }
   for(const path of ['.git/config','node_modules/pdfjs-dist/package.json','.github/workflows/ci.yml','tests/server.mjs']) {

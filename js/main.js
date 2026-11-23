@@ -322,6 +322,11 @@ function attach() {
   $('print').addEventListener('click',()=>window.print());
   $('clear').addEventListener('click',clearEntries);
   $('open-settings').addEventListener('click',openSettings);
+  document.querySelectorAll('[data-settings-target]').forEach(button => button.addEventListener('click', () => {
+    openSettings();
+    const field = $('settings-form').elements[button.dataset.settingsTarget];
+    field.scrollIntoView({ block:'center' }); field.focus({ preventScroll:true });
+  }));
   $('close-settings').addEventListener('click',()=>$('settings-dialog').close());
   $('settings-form').addEventListener('submit',saveSettings);
   $('translation-language').addEventListener('change', e => {
