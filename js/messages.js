@@ -74,7 +74,9 @@ export const messages = {
     "changeSettings": "Change in journal settings",
     "metadataSettingsHint": "Article types, subject areas and word limits can be changed.",
     "declarationSettingsHint": "These declarations and their translations can be changed.",
-    "guidanceSettingsHint": "Journal links and guidance can be changed."
+    "guidanceSettingsHint": "Journal links and guidance can be changed.",
+    "skipToForm": "Skip to manuscript form",
+    "progressValue": "{passed} of {total} completed ({percentage}%)"
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -150,7 +152,9 @@ export const messages = {
     "changeSettings": "تغيير في إعدادات المجلة",
     "metadataSettingsHint": "يمكن تغيير أنواع المقالات والمجالات العلمية وحدود الكلمات.",
     "declarationSettingsHint": "يمكن تغيير هذه الإقرارات وترجماتها.",
-    "guidanceSettingsHint": "يمكن تغيير روابط المجلة وإرشاداتها."
+    "guidanceSettingsHint": "يمكن تغيير روابط المجلة وإرشاداتها.",
+    "skipToForm": "انتقل إلى نموذج المخطوطة",
+    "progressValue": "اكتمل {passed} من {total} ({percentage}%)"
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -226,7 +230,9 @@ export const messages = {
     "changeSettings": "بگۆهۆڕە د ڕێکخستنێن گۆڤارێ دا",
     "metadataSettingsHint": "جۆرێن وتاران، بوارێن زانستی و سنوورێن پەیڤان دهێنە گۆهۆڕین.",
     "declarationSettingsHint": "ئەڤ پشتڕاستکرن و وەرگێڕانێن وان دهێنە گۆهۆڕین.",
-    "guidanceSettingsHint": "لینک و ڕێنمایێن گۆڤارێ دهێنە گۆهۆڕین."
+    "guidanceSettingsHint": "لینک و ڕێنمایێن گۆڤارێ دهێنە گۆهۆڕین.",
+    "skipToForm": "بچۆ فۆرما دەستنڤیسێ",
+    "progressValue": "{passed} ژ {total} تەمام بوون ({percentage}%)"
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -302,6 +308,8 @@ export const messages = {
     "changeSettings": "Dergi ayarlarında değiştir",
     "metadataSettingsHint": "Makale türleri, konu alanları ve kelime sınırları değiştirilebilir.",
     "declarationSettingsHint": "Bu beyanlar ve çevirileri değiştirilebilir.",
-    "guidanceSettingsHint": "Dergi bağlantıları ve rehberi değiştirilebilir."
+    "guidanceSettingsHint": "Dergi bağlantıları ve rehberi değiştirilebilir.",
+    "skipToForm": "Makale formuna geç",
+    "progressValue": "{total} kontrolden {passed} tamamlandı (%{percentage})"
   }
 };

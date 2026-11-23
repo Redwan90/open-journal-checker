@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.2 — 2026-11-23
+
+- Add a translated keyboard skip link to the manuscript form, with correct focus order.
+- Give manuscript fields and file selection stable accessible names, with hints and counts exposed separately as descriptions.
+- Expose readiness and confirmation progress values and localized check states to assistive technology; make the checklist title a heading.
+- Keep the header within a narrow viewport with increased text spacing and simulated 200% text enlargement; use a decorative vector arrow that stays inside its icon.
+- Document the accessibility checks and remaining real screen-reader/device testing.
+
 ## 1.2.1 — 2026-11-23
 
 - Fix the desktop readiness card overlapping journal guidance and blocking the return-to-submission link after file inspection.

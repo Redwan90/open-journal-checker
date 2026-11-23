@@ -53,7 +53,7 @@ npx playwright install chromium firefox
 npm run test:browser
 ```
 
-These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They check Chromium and Firefox, narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
+These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They check Chromium and Firefox, narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. See the [accessibility check record and remaining human review](docs/ACCESSIBILITY.md). The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
 
 ## Deploy for a journal
 
