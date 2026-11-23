@@ -6,7 +6,7 @@ Thanks for your interest. This project is designed for scholarly journal publish
 2. Fork the repository and create a focused feature branch.
 3. Keep manuscript contents local by default. Do not add analytics, document uploads, or hidden network calls.
 4. Add or update `node:test` tests for changes in validation, configuration or file inspection.
-5. Run `npm test`, test the application with a browser and submit a pull request.
+5. Run `npm test`. For interface changes, also run `npm ci`, `npx playwright install chromium firefox`, and `npm run test:browser`, then submit a pull request. Browser tests serve the real application with CSP enabled; use synthetic manuscript fixtures only.
 
 Please do not include confidential manuscripts, proprietary journal content, API keys, passwords, or identifiable reviewer information in issues or tests. Contributions are submitted under the project's Apache-2.0 license.
 

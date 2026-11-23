@@ -13,7 +13,7 @@
   <div id="app">
     <header class="site-header">
       <div class="shell header-inner">
-        <a class="brand" href="./" aria-label="Open Journal Checker home"><span class="brand-icon" aria-hidden="true">↗</span><span class="brand-text">Open<span>Journal</span><small>CHECKER / OPEN SOURCE</small></span></a>
+        <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">↗</span><span class="brand-text">Open<span>Journal</span><small>CHECKER / OPEN SOURCE</small></span></a>
         <nav class="nav-actions" aria-label="App navigation">
           <span class="nav-tag" data-i18n="navTag">OPEN-SOURCE RESEARCH SOFTWARE</span>
           <select id="language" aria-label="Display language"><option value="en">English</option><option value="ar">العربية</option><option value="ku">کوردی (بادینی)</option><option value="tr">Türkçe</option></select>
@@ -82,7 +82,7 @@
     <label class="full"><span data-i18n="areas">Subject areas (one per line: Name | term1, term2)</span><textarea name="subjects" rows="5"></textarea></label>
     <label class="full"><span data-i18n="declarations">Author confirmations (one per line)</span><textarea name="confirmations" rows="8"></textarea></label>
     <label class="full"><span data-i18n="extra">Additional journal guidance</span><textarea name="extraGuidance" rows="3" maxlength="1500"></textarea></label>
-  </div><p class="muted tiny" data-i18n="settingsInfo">Journal administrators can export JSON and host a customized version. The app never saves manuscript text between sessions.</p><div class="settings-actions"><button type="button" class="secondary" id="config-export" data-i18n="exportConfig">Export journal configuration</button><label class="secondary faux-button" for="config-import" data-i18n="importConfig">Import journal JSON</label><input type="file" id="config-import" accept=".json,application/json" hidden/><button type="button" class="text-button" id="config-reset" data-i18n="resetConfig">Reset demo configuration</button><button class="primary" type="submit" data-i18n="saveConfig">Save settings</button></div></form></dialog>
+  </div><p class="muted tiny" data-i18n="settingsInfo">Journal administrators can export JSON and host a customized version. The app never saves manuscript text between sessions.</p><div class="settings-actions"><button type="button" class="secondary" id="config-export" data-i18n="exportConfig">Export journal configuration</button><button type="button" id="config-import-trigger" class="secondary" data-i18n="importConfig">Import journal JSON</button><input type="file" id="config-import" accept=".json,application/json" hidden/><button type="button" class="text-button" id="config-reset" data-i18n="resetConfig">Reset demo configuration</button><button class="primary" type="submit" data-i18n="saveConfig">Save settings</button></div></form></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="./js/main.js"></script>
 </body>
