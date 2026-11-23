@@ -112,6 +112,12 @@ function checkDetail(check, result) {
   if (check.id === 'alphabetical') return label('keywordsHelp');
   return result.scope.matches.length ? label('scopeMatches', { terms:result.scope.matches.join(', ') }) : label('scopeHeuristic');
 }
+function updateProgress(id, passed, total, percentage) {
+  const node = $(id);
+  node.setAttribute('aria-valuemax', String(total));
+  node.setAttribute('aria-valuenow', String(passed));
+  node.setAttribute('aria-valuetext', label('progressValue', {passed, total, percentage}));
+}
 function update() {
   const result = evaluate(getManuscript(), config);
   $('hero-count').textContent = result.passed;
@@ -122,15 +128,19 @@ function update() {
   $('summary-total').textContent = result.total;
   $('score-badge').textContent = `${result.percentage}%`;
   $('summary-bar').style.width = `${result.percentage}%`;
+  updateProgress('readiness-progress', result.passed, result.total, result.percentage);
   $('title-count').textContent = result.words.title;
   $('abstract-count').textContent = result.words.abstract;
   $('keywords-count').textContent = result.keywords.length;
   const completed = result.confirmations.filter(c => c.pass).length;
   $('confirm-count').textContent = `${completed}/${result.confirmations.length}`;
-  $('confirm-bar').style.width = `${result.confirmations.length ? 100 * completed / result.confirmations.length : 0}%`;
+  const confirmationPercentage = result.confirmations.length ? Math.round(100 * completed / result.confirmations.length) : 0;
+  $('confirm-bar').style.width = `${confirmationPercentage}%`;
+  updateProgress('confirmation-progress', completed, result.confirmations.length, confirmationPercentage);
   $('checks').replaceChildren(...result.checks.map(c => {
     const row = document.createElement('div'); row.className = `check-row ${c.pass ? 'is-good' : ''}`;
     const icon = document.createElement('span'); icon.className = 'check-icon'; icon.textContent = c.pass ? '✓' : '–';
+    icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', label(c.pass ? 'pass' : 'pending'));
     const text = document.createElement('div'); text.className = 'check-detail';
     const bold = document.createElement('strong'); bold.textContent = label(checkNames[c.id]);
     const hint = document.createElement('small'); hint.textContent = checkDetail(c, result);

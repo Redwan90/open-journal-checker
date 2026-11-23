@@ -1,6 +1,6 @@
 {
   "name": "open-journal-checker",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "type": "module",
   "description": "Configurable open-source manuscript submission readiness checker for scholarly journals",

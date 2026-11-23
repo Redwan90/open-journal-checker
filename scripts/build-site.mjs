@@ -14,7 +14,7 @@ for(const file of ['index.html','style.css','journal-settings.json','LICENSE','R
   await cp(resolve(root,file),resolve(destination,file));
 }
 await mkdir(resolve(destination,'docs'),{recursive:true});
-await cp(resolve(root,'docs/OJS-INTEGRATION.md'),resolve(destination,'docs/OJS-INTEGRATION.md'));
+for(const file of ['OJS-INTEGRATION.md','ACCESSIBILITY.md']) await cp(resolve(root,'docs',file),resolve(destination,'docs',file));
 await cp(resolve(root,'js'),resolve(destination,'js'),{recursive:true});
 const vendor=resolve(destination,'vendor/pdfjs');
 await mkdir(resolve(vendor,'build'),{recursive:true});
