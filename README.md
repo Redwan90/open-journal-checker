@@ -60,7 +60,7 @@ These tests serve the actual application under `/open-journal-checker/` with its
 - Extract the ready-to-deploy ZIP into your journal web server’s `/checker/` directory, keeping `vendor/` and its licenses. Alternatively, run `npm ci` and `npm run build`, then deploy the contents of `dist/`. Do not publish the repository root or `node_modules/` for the release deployment.
 - Ensure the server serves JavaScript modules with a valid MIME type and applies HTTPS.
 - Configure `journal-settings.json` for your journal, and add a navigation link on your OJS site to `/checker/`.
-- See [OJS integration instructions](docs/OJS-INTEGRATION.md).
+- See [OJS integration instructions](docs/OJS-INTEGRATION.md), including the tested OJS 3.5 navigation workflow and optional staging round-trip check.
 
 **GitHub Pages:** Set **Settings → Pages → Source → GitHub Actions**. The workflow publishes only from `main`, after both core and Chromium/Firefox tests succeed, using the exact built artifact tested in that run. PRs cannot deploy. A freshness check skips a superseded commit. Failed checks retain the previous deployed site. The build uses relative paths, includes `.nojekyll`, and records its version/commit in `version.json`. Do not enable legacy branch publishing alongside this workflow.
 
@@ -164,7 +164,7 @@ Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Academic user
 - Accessibility and translation review with native speakers
 - Better PDF/DOCX heading and reference parsing, plus test fixtures
 - More flexible scope engines with clear explanations
-- A version-tested OJS plugin offering a pre-submission link (not yet available)
+- A native OJS plugin (not yet available); the standalone navigation-link workflow is tested on OJS 3.5.0-6.
 - Separate plugins/adapters for additional publishing platforms
 
 ## Support

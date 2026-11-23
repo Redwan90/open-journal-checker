@@ -70,7 +70,11 @@ export const messages = {
     "journalTranslations": "Journal translations (optional)",
     "translationLanguage": "Translation language",
     "translationFallback": "Original or demo wording",
-    "translationHelp": "Choose a language and enter translations below each original label. Blank fields use the original wording or the demo translation. Save settings to apply. If you change original wording, its old translation is removed."
+    "translationHelp": "Choose a language and enter translations below each original label. Blank fields use the original wording or the demo translation. Save settings to apply. If you change original wording, its old translation is removed.",
+    "changeSettings": "Change in journal settings",
+    "metadataSettingsHint": "Article types, subject areas and word limits can be changed.",
+    "declarationSettingsHint": "These declarations and their translations can be changed.",
+    "guidanceSettingsHint": "Journal links and guidance can be changed."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -142,7 +146,11 @@ export const messages = {
     "journalTranslations": "ترجمات المجلة (اختياري)",
     "translationLanguage": "لغة الترجمة",
     "translationFallback": "النص الأصلي أو ترجمة المجلة التجريبية",
-    "translationHelp": "اختر لغة وأدخل الترجمات أسفل كل نص أصلي. تستخدم الحقول الفارغة النص الأصلي أو ترجمة المجلة التجريبية. احفظ الإعدادات للتطبيق. عند تغيير النص الأصلي، تُحذف ترجمته القديمة."
+    "translationHelp": "اختر لغة وأدخل الترجمات أسفل كل نص أصلي. تستخدم الحقول الفارغة النص الأصلي أو ترجمة المجلة التجريبية. احفظ الإعدادات للتطبيق. عند تغيير النص الأصلي، تُحذف ترجمته القديمة.",
+    "changeSettings": "تغيير في إعدادات المجلة",
+    "metadataSettingsHint": "يمكن تغيير أنواع المقالات والمجالات العلمية وحدود الكلمات.",
+    "declarationSettingsHint": "يمكن تغيير هذه الإقرارات وترجماتها.",
+    "guidanceSettingsHint": "يمكن تغيير روابط المجلة وإرشاداتها."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -214,7 +222,11 @@ export const messages = {
     "journalTranslations": "وەرگێڕانێن گۆڤارێ (دلخواز)",
     "translationLanguage": "زمانێ وەرگێڕانێ",
     "translationFallback": "دەقێ ڕەسەن یان یێ گۆڤارا تاقیکرنێ",
-    "translationHelp": "زمانەکی هەلبژێرە و وەرگێڕانێ ل بن هەر دەقەکێ ڕەسەن بنڤیسە. خانەیێن ڤالا دەقێ ڕەسەن یان وەرگێڕانا تاقیکرنێ بکار دئینن. ڕێکخستنان تۆمار بکە. ئەگەر دەقێ ڕەسەن بگۆهۆڕی، وەرگێڕانا وێ یا کەڤن دهێتە ژێبرن."
+    "translationHelp": "زمانەکی هەلبژێرە و وەرگێڕانێ ل بن هەر دەقەکێ ڕەسەن بنڤیسە. خانەیێن ڤالا دەقێ ڕەسەن یان وەرگێڕانا تاقیکرنێ بکار دئینن. ڕێکخستنان تۆمار بکە. ئەگەر دەقێ ڕەسەن بگۆهۆڕی، وەرگێڕانا وێ یا کەڤن دهێتە ژێبرن.",
+    "changeSettings": "بگۆهۆڕە د ڕێکخستنێن گۆڤارێ دا",
+    "metadataSettingsHint": "جۆرێن وتاران، بوارێن زانستی و سنوورێن پەیڤان دهێنە گۆهۆڕین.",
+    "declarationSettingsHint": "ئەڤ پشتڕاستکرن و وەرگێڕانێن وان دهێنە گۆهۆڕین.",
+    "guidanceSettingsHint": "لینک و ڕێنمایێن گۆڤارێ دهێنە گۆهۆڕین."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -286,6 +298,10 @@ export const messages = {
     "journalTranslations": "Dergi çevirileri (isteğe bağlı)",
     "translationLanguage": "Çeviri dili",
     "translationFallback": "Özgün metin veya demo çevirisi",
-    "translationHelp": "Bir dil seçin ve her özgün metnin altına çevirisini girin. Boş alanlarda özgün metin veya demo çevirisi kullanılır. Uygulamak için ayarları kaydedin. Özgün metni değiştirirseniz eski çevirisi kaldırılır."
+    "translationHelp": "Bir dil seçin ve her özgün metnin altına çevirisini girin. Boş alanlarda özgün metin veya demo çevirisi kullanılır. Uygulamak için ayarları kaydedin. Özgün metni değiştirirseniz eski çevirisi kaldırılır.",
+    "changeSettings": "Dergi ayarlarında değiştir",
+    "metadataSettingsHint": "Makale türleri, konu alanları ve kelime sınırları değiştirilebilir.",
+    "declarationSettingsHint": "Bu beyanlar ve çevirileri değiştirilebilir.",
+    "guidanceSettingsHint": "Dergi bağlantıları ve rehberi değiştirilebilir."
   }
 };

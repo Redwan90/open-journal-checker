@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1 — 2026-11-23
+
+- Fix the desktop readiness card overlapping journal guidance and blocking the return-to-submission link after file inspection.
+- Add translated settings hints beside metadata, author declarations and journal guidance. Each shortcut opens and focuses the relevant settings field, with keyboard focus returned on closing.
+- Clarify and verify the standalone navigation-link integration with OJS; no manuscript or author data is transferred. Include the OJS guide in release bundles so its README link works.
+
 ## 1.2.0 — 2026-11-23
 
 - Add optional journal translations in English, Arabic, Kurdish Badini and Turkish for the journal name, article types, subject labels, guidance and author declarations, with a language-by-language settings editor.

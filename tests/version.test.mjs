@@ -9,7 +9,8 @@ test('Package, lockfile, citation, UI and changelog identify the same release',(
   const lock=JSON.parse(text('package-lock.json'));
   assert.equal(lock.version,VERSION);
   assert.equal(lock.packages[''].version,VERSION);
-  assert.ok(text('CITATION.cff').includes(`version: ${VERSION}\n`));
+  assert.ok(text('CITATION.cff').split('\n').includes(`version: ${VERSION}`));
+  assert.ok(text('CITATION.cff').startsWith('cff-version: 1.2.0\n'));
   assert.ok(text('index.html').includes(`v${VERSION} ·`));
   assert.ok(text('CHANGELOG.md').includes(`## ${VERSION} —`));
 });
