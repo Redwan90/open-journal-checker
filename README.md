@@ -104,7 +104,7 @@ The settings interface is not an authentication or authorization system; any vis
 5. At least one configured subject phrase appears in title, abstract or keywords.
 6. Each selected author confirmation counts as one additional check.
 
-This is **self-reported preparation**, not a scientific or editorial quality metric. Scope matching uses simple keyword patterns and can produce false positives/negatives. Heading detection uses English-language patterns and works best on text-based files. Scanned PDFs may contain no extractable text.
+This is **self-reported preparation**, not a scientific or editorial quality metric. Scope matching uses simple keyword patterns and can produce false positives/negatives. Heading detection recognizes common English, Arabic, Kurdish (Arabic and Latin scripts) and Turkish labels and works best on text-based files. It accepts numbered headings and colon-separated inline text; extraction order, uncommon wording and damaged font mappings can still prevent detection. Scanned PDFs may contain no extractable text.
 
 Saving, importing, resetting, or loading a hosted journal configuration clears all author confirmations, even if the declaration wording is unchanged. Authors must review and confirm the active journal rules again. Changing the interface language preserves confirmations.
 
@@ -126,7 +126,7 @@ The revision model follows the Open XML distinction between [deleted](https://le
 
 ## Localization
 
-The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection itself still uses English patterns; changing the interface language does not change this limitation or the readiness rules.
+The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection checks all supported manuscript languages independently of the interface language; it remains heuristic and does not affect the readiness score.
 
 Built-in demo journal names, article types, subject labels, guidance and all ten author declarations are translated. Matching uses canonical values so selections and confirmations survive language changes. Custom journal wording and scope-matching terms remain as supplied. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
 

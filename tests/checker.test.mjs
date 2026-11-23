@@ -91,3 +91,35 @@ test('Turkish translations exist and use left-to-right layout', async () => {
  assert.equal(rtl('ar'), true);
  assert.equal(rtl('ku'), true);
 });
+
+for (const [language, text] of Object.entries({
+ en:'1. Abstract\nKEY WORDS: Data\n2.1 Materials and methods\n3 References',
+ ar:'١. الْمُلَخَّصُ\nالكلمات المفتاحية： بيانات\n٢.١ منهجية البحث\nالمراجع',
+ ku:'پوختە\nپەیڤێن سەرەکی: داتا\nڕێبازێ ڤەکۆلینێ\nژێدەر',
+ kuLatin:'Kurte\nPeyvên sereke: dane\nRêbazên lêkolînê\nÇavkanî',
+ tr:'ÖZET\nANAHTAR SÖZCÜKLER: Veri\n2 Gereç ve yöntem\nKAYNAKÇA'
+})) test(`Recognize ${language} manuscript headings without changing original content`,()=>{
+ const result=inspectText(text+'\n10.1234/example');
+ assert.deepEqual(result.headings,{abstract:true,keywords:true,references:true,methods:true});
+ assert.equal(result.preview,text+'\n10.1234/example');
+ assert.deepEqual(result.dois,['10.1234/example']);
+});
+
+test('Heading matching tolerates extraction whitespace, Arabic character variants and direction marks',()=>{
+ const text='\u200f١. ملخص\r\nالكلمات\tالمفتاحية: بيانات\r\nڕێبازێ ڤە\u200cکۆلینێ\r\nژێـدەر';
+ const result=inspectText(text);
+ assert.equal(result.headings.abstract,true);
+ assert.equal(result.headings.keywords,true);
+ assert.equal(result.headings.references,true);
+ assert.equal(result.headings.methods,true);
+ assert.equal(inspectText('پەیڤێن سەرەکی\nپەیڤێن سەرەكي').headings.keywords,true);
+});
+
+test('Prose mentions, label prefixes and notes cannot manufacture body headings',()=>{
+ for(const text of ['The abstract describes methods and references.', 'Abstract analysis', 'Methods are described below.', 'المراجع المذكورة هنا', 'Özet bilgi burada', 'Kaynaklar hakkında bilgi', 'پوختە یا ڤەکۆلینێ']) {
+  assert.deepEqual(inspectText(text).headings,{abstract:false,keywords:false,references:false,methods:false},text);
+ }
+ assert.deepEqual(inspectText('Body\nالملخص\nالكلمات المفتاحية\nالمنهجية\nالمراجع','Body').headings,{abstract:false,keywords:false,references:false,methods:false});
+ assert.equal(inspectText('Abstract').headings.abstract,true);
+ assert.equal(inspectText('Keywords').headings.keywords,true);
+});
