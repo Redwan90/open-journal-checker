@@ -61,7 +61,11 @@ export const messages = {
     "unconfirmed": "UNCONFIRMED",
     "advisoryReport": "Advisory preparation report; not an editorial decision or plagiarism check.",
     "reportGuidance": "Review the current journal guidelines. Scores do not measure scientific quality or acceptance likelihood.",
-    "fileReportSummary": "{words} words · {dois} DOI patterns"
+    "fileReportSummary": "{words} words · {dois} DOI patterns",
+    "docxTextMode": "Inserted text is included; deleted and moved-from run text is excluded.",
+    "docxNotes": "Includes {footnotes} footnotes and {endnotes} endnotes. Body headings are checked separately.",
+    "docxMissingNotes": "{count} referenced notes could not be found; inspection is incomplete.",
+    "pdfNoText": "No extractable PDF text was found. This may be a scanned or image-only file; OCR is not provided."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -124,7 +128,11 @@ export const messages = {
     "unconfirmed": "غير مؤكّد",
     "advisoryReport": "تقرير تحضيري إرشادي؛ ليس قراراً تحريرياً أو فحصاً للانتحال.",
     "reportGuidance": "راجع تعليمات المجلة الحالية. لا تقيس الدرجات الجودة العلمية أو احتمال القبول.",
-    "fileReportSummary": "{words} كلمة · {dois} أنماط DOI"
+    "fileReportSummary": "{words} كلمة · {dois} أنماط DOI",
+    "docxTextMode": "يُضمّن النص المُدرج، ويُستبعد نص المقاطع المحذوفة والمنقولة من موضعها.",
+    "docxNotes": "يتضمن {footnotes} حواشي سفلية و{endnotes} حواشي ختامية. تُفحص عناوين المتن بشكل منفصل.",
+    "docxMissingNotes": "تعذّر العثور على {count} حواشٍ مشار إليها؛ الفحص غير مكتمل.",
+    "pdfNoText": "لم يُعثر على نص قابل للاستخراج في PDF. قد يكون ممسوحاً ضوئياً أو صوراً فقط؛ لا تتوفر ميزة OCR."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -187,7 +195,11 @@ export const messages = {
     "unconfirmed": "نە پشتڕاستکری",
     "advisoryReport": "راپۆرتا ئامادەکرنێیە؛ نە بریارا گۆڤارێ و نە پشکنینا دزییا زانستییە.",
     "reportGuidance": "رێنمایێن نوو یێن گۆڤارێ بخوینە. ئەنجام پێڤەرێ کوالیتیا زانستی یان ئەگەرا پەسەندکرنێ نینن.",
-    "fileReportSummary": "{words} پەیڤ · {dois} شێوەیێن DOI"
+    "fileReportSummary": "{words} پەیڤ · {dois} شێوەیێن DOI",
+    "docxTextMode": "دەقێ زێدەکری دهێتە هژمارتن؛ دەقێ ژێبری و گواستی ژ شوینێ خۆ ناهێتە هژمارتن.",
+    "docxNotes": "{footnotes} پەراوێزێن لاپەڕێ و {endnotes} پەراوێزێن دوماهیێ هاتنە هژمارتن. سەردێڕێن دەقێ سەرەکی جودا دهێنە پشکنین.",
+    "docxMissingNotes": "{count} پەراوێزێن ئاماژەپێکری نەهاتنە دیتن؛ پشکنین نەتەمامە.",
+    "pdfNoText": "دەقەکێ PDF یا خواندنێ نەهاتە دیتن. دکاریت فایل وێنە یان سکان بیت؛ OCR بەردەست نینە."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -250,6 +262,10 @@ export const messages = {
     "unconfirmed": "DOĞRULANMADI",
     "advisoryReport": "Bu rapor yalnızca hazırlık amaçlıdır; editöryal karar veya intihal kontrolü değildir.",
     "reportGuidance": "Güncel dergi yönergelerini inceleyin. Puanlar bilimsel kaliteyi veya kabul olasılığını ölçmez.",
-    "fileReportSummary": "{words} kelime · {dois} DOI kalıbı"
+    "fileReportSummary": "{words} kelime · {dois} DOI kalıbı",
+    "docxTextMode": "Eklenen metin dahil edilir; silinen ve taşınan metnin eski konumu hariç tutulur.",
+    "docxNotes": "{footnotes} dipnot ve {endnotes} sonnot içerir. Gövde başlıkları ayrı denetlenir.",
+    "docxMissingNotes": "Atıfta bulunulan {count} not bulunamadı; inceleme eksik.",
+    "pdfNoText": "PDF’te çıkarılabilir metin bulunamadı. Dosya taranmış veya yalnızca görüntü içeriyor olabilir; OCR sunulmaz."
   }
 };

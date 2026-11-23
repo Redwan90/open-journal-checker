@@ -70,13 +70,14 @@ export function extractDois(text = '') {
   return [...unique.values()];
 }
 export function isDoi(value = '') { return /^10\.\d{4,9}\/\S+$/i.test(String(value).trim()); }
-export function inspectText(text = '') {
+export function inspectText(text = '', headingText = text) {
   const content = String(text);
+  const structure = String(headingText);
   const headings = {
-    abstract: /(?:^|\n)\s*abstract\s*(?:\n|:)/im.test(content),
-    keywords: /(?:^|\n)\s*(?:key\s?words|keywords)\s*(?:\n|:)/im.test(content),
-    references: /(?:^|\n)\s*(?:references|bibliography|works cited)\s*(?:\n|:|$)/im.test(content),
-    methods: /(?:^|\n)\s*(?:methods?|methodology|materials and methods)\s*(?:\n|:|$)/im.test(content)
+    abstract: /(?:^|\n)\s*abstract\s*(?:\n|:)/im.test(structure),
+    keywords: /(?:^|\n)\s*(?:key\s?words|keywords)\s*(?:\n|:)/im.test(structure),
+    references: /(?:^|\n)\s*(?:references|bibliography|works cited)\s*(?:\n|:|$)/im.test(structure),
+    methods: /(?:^|\n)\s*(?:methods?|methodology|materials and methods)\s*(?:\n|:|$)/im.test(structure)
   };
   const dois = extractDois(content);
   return { words: wordCount(content), headings, dois, preview: content.slice(0, 500), note: 'Heading detection is heuristic and English-language oriented; missing markers do not prove noncompliance.' };

@@ -75,6 +75,13 @@ test('Detect document sections from plain text', () => {
  assert.deepEqual(r.dois,['10.1234/abc']);
 });
 
+test('Notes contribute DOI patterns and words without becoming body headings',()=>{
+ const result=inspectText('Body text\nMethods\n10.1234/note','Body text');
+ assert.equal(result.headings.methods,false);
+ assert.deepEqual(result.dois,['10.1234/note']);
+ assert.ok(result.words>2);
+});
+
 test('Turkish translations exist and use left-to-right layout', async () => {
  const { t, rtl } = await import('../js/i18n.js');
  assert.equal(t('tr', 'settings'), 'Dergi ayarları');

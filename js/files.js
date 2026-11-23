@@ -1,3 +1,4 @@
+import { parseWordXml } from './wordxml.js';
 // Local-first file extraction. PDF.js, when needed, loads its code from jsDelivr;
 // the manuscript itself is processed in memory, never uploaded by this application.
 const DOCX_MAX_BYTES = 12 * 1024 * 1024;
@@ -7,57 +8,93 @@ function fileError(code, message) { return Object.assign(new Error(message), { c
 function u16(d, offset) { return d.getUint16(offset, true); }
 function u32(d, offset) { return d.getUint32(offset, true); }
 
+function docxDirectory(array) {
+  const data = new DataView(array);
+  const invalid = () => fileError('docxInvalid', 'Invalid DOCX archive directory.');
+  let end = -1;
+  for (let i = array.byteLength - 22; i >= Math.max(0, array.byteLength - 65557); i--) {
+    if (u32(data, i) === 0x06054b50 && i + 22 + u16(data, i + 20) === array.byteLength) { end = i; break; }
+  }
+  if (end === -1) throw fileError('docxInvalid', 'This is not a valid DOCX/ZIP file.');
+  const count = u16(data, end + 10);
+  if (count > 10000) throw fileError('docxEntries', 'Too many document entries.');
+  if (u16(data, end + 4) || u16(data, end + 6) || u16(data, end + 8) !== count) throw invalid();
+  const directory = u32(data, end + 16), limit = directory + u32(data, end + 12);
+  if (limit > end) throw invalid();
+  const entries = new Map();
+  let offset = directory;
+  for (let i = 0; i < count; i++) {
+    if (offset + 46 > limit || u32(data, offset) !== 0x02014b50) throw invalid();
+    const nameLength = u16(data, offset + 28);
+    const next = offset + 46 + nameLength + u16(data, offset + 30) + u16(data, offset + 32);
+    if (next > limit) throw invalid();
+    const name = new TextDecoder().decode(new Uint8Array(array, offset + 46, nameLength));
+    if (['word/document.xml','word/footnotes.xml','word/endnotes.xml'].includes(name)) {
+      if (entries.has(name)) throw invalid();
+      entries.set(name, { name, flags:u16(data, offset + 8), method:u16(data, offset + 10),
+        packed:u32(data, offset + 20), unpacked:u32(data, offset + 24), local:u32(data, offset + 42) });
+    }
+    offset = next;
+  }
+  return { entries, directory, data };
+}
+
+async function readDocxPart(array, archive, entry, budget) {
+  const { data, directory } = archive;
+  const invalid = () => fileError('docxInvalid', 'Invalid DOCX entry.');
+  if (entry.flags & 1) throw invalid(); // Encrypted ZIP parts are unsupported.
+  if (entry.unpacked > budget.remaining) throw fileError('docxInflated', 'Decompressed document exceeds size limit.');
+  if (entry.local + 30 > directory || u32(data, entry.local) !== 0x04034b50) throw invalid();
+  const localNameLength = u16(data, entry.local + 26);
+  const start = entry.local + 30 + localNameLength + u16(data, entry.local + 28);
+  if (start + entry.packed > directory || (u16(data, entry.local + 6) & 1) || u16(data, entry.local + 8) !== entry.method) throw invalid();
+  const localName = new TextDecoder().decode(new Uint8Array(array, entry.local + 30, localNameLength));
+  if (localName !== entry.name) throw invalid();
+  const raw = array.slice(start, start + entry.packed);
+  let output;
+  if (entry.method === 0) output = new Uint8Array(raw);
+  else if (entry.method === 8) {
+    if (typeof DecompressionStream === 'undefined') throw fileError('docxBrowser', 'Your browser does not support local DOCX extraction.');
+    const reader = new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+    const chunks = []; let total = 0;
+    try {
+      while (true) {
+        const { value, done } = await reader.read(); if (done) break;
+        total += value.byteLength;
+        if (total > budget.remaining) { await reader.cancel(); throw fileError('docxInflated', 'Decompressed document exceeds size limit.'); }
+        chunks.push(value);
+      }
+    } finally { reader.releaseLock(); }
+    output = new Uint8Array(total); let position = 0;
+    for (const chunk of chunks) { output.set(chunk, position); position += chunk.byteLength; }
+  } else throw fileError('docxCompression', 'Unsupported DOCX compression method.');
+  if (output.byteLength > budget.remaining) throw fileError('docxInflated', 'Decompressed document exceeds size limit.');
+  if (output.byteLength !== entry.unpacked) throw invalid();
+  budget.remaining -= output.byteLength;
+  return new TextDecoder().decode(output);
+}
+
 export async function extractDocx(file) {
   if (file.size > DOCX_MAX_BYTES) throw fileError('docxTooLarge', 'DOCX exceeds the 12 MB local-processing limit.');
   const array = await file.arrayBuffer();
-  const data = new DataView(array);
-  let eocd = -1;
-  for (let i = array.byteLength - 22; i >= Math.max(0, array.byteLength - 65557); i--) {
-    if (u32(data, i) === 0x06054b50) { eocd = i; break; }
+  if (array.byteLength > DOCX_MAX_BYTES) throw fileError('docxTooLarge', 'DOCX exceeds the 12 MB local-processing limit.');
+  const archive = docxDirectory(array), budget = {remaining:ZIP_XML_MAX_BYTES};
+  const bodyEntry = archive.entries.get('word/document.xml');
+  if (!bodyEntry) throw fileError('docxMissing', 'No readable word/document.xml entry found.');
+  const body = parseWordXml(await readDocxPart(array, archive, bodyEntry, budget), 'document');
+  const texts = [body.text], notes = {footnotes:0,endnotes:0};
+  let missingNotes = 0;
+  for (const kind of ['footnotes','endnotes']) {
+    const ids = body[kind];
+    if (!ids.size) continue;
+    const entry = archive.entries.get(`word/${kind}.xml`);
+    if (!entry) { missingNotes += ids.size; continue; }
+    const part = parseWordXml(await readDocxPart(array, archive, entry, budget), kind, ids);
+    notes[kind] = part.ids.size;
+    missingNotes += [...ids].filter(id => !part.ids.has(id)).length;
+    if (part.text) texts.push(part.text);
   }
-  if (eocd === -1) throw fileError('docxInvalid', 'This is not a valid DOCX/ZIP file.');
-  const entryCount = u16(data, eocd + 10);
-  if (entryCount > 10000) throw fileError('docxEntries', 'Too many document entries.');
-  let offset = u32(data, eocd + 16);
-  for (let i = 0; i < entryCount; i++) {
-    if (offset + 46 > array.byteLength || u32(data, offset) !== 0x02014b50) throw fileError('docxInvalid', 'Invalid DOCX archive directory.');
-    const method = u16(data, offset + 10), packed = u32(data, offset + 20), unpacked = u32(data, offset + 24);
-    const filenameLen = u16(data, offset + 28), extraLen = u16(data, offset + 30), commentLen = u16(data, offset + 32);
-    const localOffset = u32(data, offset + 42);
-    const name = new TextDecoder().decode(new Uint8Array(array, offset + 46, filenameLen));
-    offset += 46 + filenameLen + extraLen + commentLen;
-    if (name !== 'word/document.xml') continue;
-    if (unpacked > ZIP_XML_MAX_BYTES) throw fileError('docxInflated', 'The uncompressed document is too large.');
-    if (localOffset + 30 > array.byteLength || u32(data, localOffset) !== 0x04034b50) throw fileError('docxInvalid', 'Invalid DOCX entry.');
-    const start = localOffset + 30 + u16(data, localOffset + 26) + u16(data, localOffset + 28);
-    if (start + packed > array.byteLength) throw fileError('docxInvalid', 'Truncated DOCX entry.');
-    let output;
-    const raw = array.slice(start, start + packed);
-    if (method === 0) output = raw;
-    else if (method === 8) {
-      if (!('DecompressionStream' in window)) throw fileError('docxBrowser', 'Your browser does not support local DOCX extraction.');
-      const reader = new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
-      const chunks = []; let total = 0;
-      try {
-        while (true) {
-          const { value, done } = await reader.read(); if (done) break;
-          total += value.byteLength;
-          if (total > ZIP_XML_MAX_BYTES) { await reader.cancel(); throw fileError('docxInflated', 'Decompressed document exceeds size limit.'); }
-          chunks.push(value);
-        }
-      } finally { reader.releaseLock(); }
-      const combined = new Uint8Array(total); let pos = 0;
-      for (const chunk of chunks) { combined.set(chunk, pos); pos += chunk.byteLength; }
-      output = combined.buffer;
-    } else throw fileError('docxCompression', 'Unsupported DOCX compression method.');
-    if (output.byteLength > ZIP_XML_MAX_BYTES) throw fileError('docxInflated', 'Decompressed document exceeds size limit.');
-    const xml = new DOMParser().parseFromString(new TextDecoder().decode(output), 'application/xml');
-    if (xml.querySelector('parsererror')) throw fileError('docxXml', 'Invalid Word document XML.');
-    const paragraphs = Array.from(xml.getElementsByTagNameNS('*', 'p'));
-    const text = paragraphs.map(p => Array.from(p.getElementsByTagNameNS('*', 't')).map(n => n.textContent).join('')).join('\n');
-    return { text, pages: null, partial: false };
-  }
-  throw fileError('docxMissing', 'No readable word/document.xml entry found.');
+  return { text:texts.join('\n'), structureText:body.text, format:'docx', notes, missingNotes, pages:null, partial:missingNotes > 0 };
 }
 
 export async function extractPdf(file) {
@@ -83,7 +120,7 @@ export async function readPdfDocument(doc) {
     const page = await doc.getPage(i), data = await page.getTextContent();
     contents.push(data.items.map(v => (v.str || '') + (v.hasEOL ? '\n' : ' ')).join(''));
   }
-  return { text: contents.join('\n'), pages: doc.numPages, partial: doc.numPages > pageLimit };
+  return { text: contents.join('\n'), format:'pdf', pages: doc.numPages, partial: doc.numPages > pageLimit };
 }
 export async function readManuscriptFile(file) {
   if (!file) throw fileError('fileSelect', 'Select a PDF or DOCX file.');
