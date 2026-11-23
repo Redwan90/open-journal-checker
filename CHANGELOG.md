@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2 — 2026-11-23
+
+- Detect common abstract, keywords, methods and references headings in English, Arabic, Kurdish (Arabic and Latin scripts) and Turkish, independently of the interface language.
+- Support numbered labels, colon-separated text, Unicode diacritics, Arabic character variants and direction marks without altering manuscript content or readiness scores.
+- Match complete heading labels to avoid treating prose mentions or footnotes as body headings. Add real PDF/DOCX extraction coverage and update the inspection guidance.
+
 ## 1.1.1 — 2026-11-23
 
 - Translate default demo declarations, journal name, article types, subject labels and guidance in Arabic, Kurdish Badini and Turkish, including downloaded HTML reports.

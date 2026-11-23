@@ -70,15 +70,34 @@ export function extractDois(text = '') {
   return [...unique.values()];
 }
 export function isDoi(value = '') { return /^10\.\d{4,9}\/\S+$/i.test(String(value).trim()); }
+// Compare complete heading labels, not mentions inside prose. Normalize only the
+// comparison copy: manuscript text, counts, DOI extraction and previews stay intact.
+function headingKey(value) {
+  return value.normalize('NFKD').toLowerCase().replace(/\p{M}/gu, '')
+    .replace(/[ـ\u200c-\u200f\u202a-\u202e\u2066-\u2069]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').replace(/ی/g, 'ي').replace(/ک/g, 'ك').replace(/ı/g, 'i')
+    .replace(/[\t \u00a0]+/g, ' ').trim();
+}
+const headingLabels = {
+  abstract: ['abstract', 'الملخص', 'ملخص', 'خلاصة', 'الخلاصة', 'پوختە', 'کورتە', 'kurte', 'puxte', 'özet', 'öz'],
+  keywords: ['key words', 'keywords', 'الكلمات المفتاحية', 'كلمات مفتاحية', 'الكلمات الدالة', 'پەیڤێن سەرەکی', 'پەیڤێن سەرەکیی', 'وشە سەرەکییەکان', 'peyvên sereke', 'anahtar kelimeler', 'anahtar sözcükler'],
+  methods: ['method', 'methods', 'methodology', 'materials and methods', 'materials & methods', 'research methods', 'المنهجية', 'منهجية', 'منهجية البحث', 'طرق البحث', 'المواد والطرق', 'المواد وطرائق العمل', 'ڕێباز', 'رێباز', 'ڕێبازێ ڤەکۆلینێ', 'رێبازێ ڤەکۆلینێ', 'rêbaz', 'rêbazên lêkolînê', 'metodolojî', 'yöntem', 'yöntemler', 'metodoloji', 'gereç ve yöntem', 'materyal ve metot', 'materyal ve yöntem', 'materyal ve yöntemler'],
+  references: ['references', 'bibliography', 'works cited', 'المراجع', 'مراجع', 'المصادر', 'المصادر والمراجع', 'ژێدەر', 'ژێدەرەکان', 'ژێدەرێن', 'çavkanî', 'çavkanîler', 'jêder', 'jêderên', 'kaynakça', 'kaynaklar']
+};
+const headingSets = Object.fromEntries(Object.entries(headingLabels).map(([kind, labels]) => [kind, new Set(labels.map(headingKey))]));
+function detectHeadings(text) {
+  const found = { abstract:false, keywords:false, references:false, methods:false };
+  for (const raw of text.split(/\r\n?|\n|\u2028|\u2029/u)) {
+    const line = headingKey(raw).replace(/^(?:\p{N}+(?:[.٫]\p{N}+)*[.)-]? +|[•●▪] +)/u, '');
+    // Inline content is accepted only after an explicit colon separator.
+    const label = line.split(/[:：]/u, 1)[0].trim().replace(/[.。]$/u, '').trim();
+    for (const kind of Object.keys(found)) if (headingSets[kind].has(label)) found[kind] = true;
+  }
+  return found;
+}
 export function inspectText(text = '', headingText = text) {
   const content = String(text);
-  const structure = String(headingText);
-  const headings = {
-    abstract: /(?:^|\n)\s*abstract\s*(?:\n|:)/im.test(structure),
-    keywords: /(?:^|\n)\s*(?:key\s?words|keywords)\s*(?:\n|:)/im.test(structure),
-    references: /(?:^|\n)\s*(?:references|bibliography|works cited)\s*(?:\n|:|$)/im.test(structure),
-    methods: /(?:^|\n)\s*(?:methods?|methodology|materials and methods)\s*(?:\n|:|$)/im.test(structure)
-  };
+  const headings = detectHeadings(String(headingText));
   const dois = extractDois(content);
-  return { words: wordCount(content), headings, dois, preview: content.slice(0, 500), note: 'Heading detection is heuristic and English-language oriented; missing markers do not prove noncompliance.' };
+  return { words: wordCount(content), headings, dois, preview: content.slice(0, 500), note: 'Heading detection recognizes common English, Arabic, Kurdish and Turkish labels heuristically; missing markers do not prove noncompliance.' };
 }

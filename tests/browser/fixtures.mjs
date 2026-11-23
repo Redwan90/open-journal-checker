@@ -49,3 +49,20 @@ export function pdfFixture({pages=1,imageOnly=false} = {}) {
   pdf+=`xref\n0 ${size}\n0000000000 65535 f \n${offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n \n`).join('')}trailer\n<< /Size ${size} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
   return Buffer.from(pdf);
 }
+
+// A synthetic PDF with explicit Unicode mappings, exercising the real PDF.js
+// extraction path without depending on a system font or a binary test asset.
+export function unicodePdfFixture(lines, rtl=false) {
+ const chars=[...new Set(lines.join('').split(''))];
+ const codes=new Map(chars.map((character,index)=>[character,index+1]));
+ const hex=number=>number.toString(16).padStart(2,'0');
+ const mappings=chars.map(character=>`<${hex(codes.get(character))}> <${character.charCodeAt(0).toString(16).padStart(4,'0')}>`).join('\n');
+ const cmap=`/CIDInit /ProcSet findresource begin 12 dict begin begincmap /CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def /CMapName /Synthetic def /CMapType 2 def 1 begincodespacerange <00> <ff> endcodespacerange ${chars.length} beginbfchar\n${mappings}\nendbfchar endcmap CMapName currentdict /CMap defineresource pop end end`;
+ const content='BT /F1 12 Tf 50 750 Td '+lines.map((line,index)=>(index?'0 -20 Td ':'')+'<'+[...(rtl?[...line].reverse().join(''):line)].map(c=>hex(codes.get(c))).join('')+'> Tj').join(' ')+' ET';
+ const objects=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [6 0 R] /Count 1 >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /ToUnicode 5 0 R >>',`<< /Length ${Buffer.byteLength(content)} >>\nstream\n${content}\nendstream`,`<< /Length ${Buffer.byteLength(cmap)} >>\nstream\n${cmap}\nendstream`,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>'];
+ let pdf='%PDF-1.4\n';const offsets=[0];
+ objects.forEach((body,index)=>{offsets.push(Buffer.byteLength(pdf));pdf+=`${index+1} 0 obj\n${body}\nendobj\n`;});
+ const start=Buffer.byteLength(pdf);
+ pdf+=`xref\n0 7\n0000000000 65535 f \n${offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n \n`).join('')}trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+ return Buffer.from(pdf);
+}
