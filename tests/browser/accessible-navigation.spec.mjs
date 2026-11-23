@@ -31,7 +31,8 @@ for(const locale of ['en','ar','ku','tr']) {
  test(`Text spacing at narrow width and enlarged text keep ${locale} controls usable`,async({page})=>{
   await page.setViewportSize({width:320,height:800});await page.goto('/open-journal-checker/');await page.locator('#language').selectOption(locale);
   await page.addStyleTag({content:`*{line-height:1.5!important;word-spacing:.16em!important;${rtl(locale)?'':'letter-spacing:.12em!important;'}}p{margin-block-end:2em!important}`});
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('body *')].filter(el=>{const b=el.getBoundingClientRect();return b.width>0&&b.right>innerWidth+1&&getComputedStyle(el).position!=='absolute';}).map(el=>({tag:el.tagName,id:el.id,class:el.className,right:Math.round(el.getBoundingClientRect().right)})).slice(0,12)}));
+  expect(layout.scrollWidth,JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
   await page.locator('#open-settings').click();await page.locator('#journal-translations summary').click();
   expect(await page.locator('#settings-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
   await page.locator('#translation-language').selectOption(locale);await page.locator('#translation-fields [data-kind=name]').fill('Synthetic translated title');
@@ -42,7 +43,8 @@ for(const locale of ['en','ar','ku','tr']) {
    const sizes=[...document.querySelectorAll('body *')].map(el=>[el,parseFloat(getComputedStyle(el).fontSize)]);
    for(const [el,size] of sizes) el.style.fontSize=`${size*2}px`;
   });
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  const enlarged=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('body *')].filter(el=>{const b=el.getBoundingClientRect();return b.width>0&&b.right>innerWidth+1&&getComputedStyle(el).position!=='absolute';}).map(el=>({tag:el.tagName,id:el.id,class:el.className,right:Math.round(el.getBoundingClientRect().right)})).slice(0,12)}));
+  expect(enlarged.scrollWidth,JSON.stringify(enlarged)).toBeLessThanOrEqual(enlarged.width);
   await page.locator('[data-settings-target=confirmations]').click();await expect(page.locator('[name=confirmations]')).toBeFocused();
   expect(await page.locator('#settings-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
   await page.locator('#close-settings').click();await expect(page.locator('[data-settings-target=confirmations]')).toBeFocused();
