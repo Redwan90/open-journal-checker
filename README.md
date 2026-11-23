@@ -104,6 +104,18 @@ A hosted configuration that finishes loading after a local save, import or reset
 
 DOI extraction combines case-insensitive duplicates and removes common trailing citation punctuation while preserving balanced parentheses. This remains a heuristic, not proof of registration or a complete parser for every historical DOI format. Crossref explains these [regular-expression limitations](https://www.crossref.org/blog/dois-and-matching-regular-expressions/). Optional Crossref requests time out after 15 seconds and provide retry guidance when rate-limited; a Crossref 404 does not prove that a DOI is invalid.
 
+## File inspection limits
+
+DOCX inspection preserves run text, paragraph/manual line breaks, tabs and table-cell boundaries. It includes inserted and moved-to run text and excludes deleted/moved-from run content. Nested text is visited once; for markup compatibility alternatives, the first Choice is used (or Fallback if no Choice exists). This is a text-reading heuristic, not full Word rendering or acceptance of every possible revision type.
+
+Referenced footnotes and endnotes from standard `word/footnotes.xml` and `word/endnotes.xml` parts contribute to extracted word counts and DOI patterns. Note separators, unreferenced notes and notes referenced only from excluded run content are omitted. Body heading checks do not use note text. Missing referenced notes mark the inspection as partial and are disclosed in the interface and HTML/JSON reports.
+
+The reader accepts transitional and strict WordprocessingML namespaces. It rejects DTDs, encrypted/ambiguous ZIP entries and malformed directory bounds. A 12 MiB input limit and one aggregate 12 MiB XML inflation budget cover body and note parts; XML traversal is also bounded. ZIP64 and split archives are unsupported. CRC/signature validation, style-based hidden text, headers/footers/comments, equation/image interpretation, complex revision types, custom part locations and exact layout remain outside this reader's scope.
+
+PDF inspection reads text from at most the first 30 pages and reports that limit in the interface and reports. PDFs without extractable text receive an explicit warning: OCR is not provided. Text order and headings remain approximate for complex or multi-column layouts. Neither DOCX nor PDF inspection is a journal-formatting compliance certificate.
+
+The revision model follows the Open XML distinction between [deleted](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.deletedrun) and [moved-from run content](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.movefromrun); full revision acceptance requires more than text extraction.
+
 ## Localization
 
 The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection itself still uses English patterns; changing the interface language does not change this limitation or the readiness rules.
