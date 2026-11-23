@@ -33,3 +33,5 @@ input::placeholder,textarea::placeholder{color:#546579;opacity:1}
 @media print{body{background:#fff}.site-header,.nav-actions,.hero-stat,.safety-bar,.summary-buttons,.drop-zone,.footer,.help-card,.disclaimer,#settings-dialog,.doi-zone{display:none!important}.hero{background:none;color:#000;display:block;min-height:0}.hero-content{padding:15px 0}.hero h1,.hero h1 em{color:black}.columns{display:block}.panel,.summary-card{box-shadow:none;border:1px solid #bbb;margin-bottom:14px}.summary-card{position:static}}
 
 .footer a[href='https://ridwanmarqas.com/']{text-decoration:underline;text-underline-offset:2px}
+
+#journal-translations{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}#journal-translations summary{cursor:pointer;font-weight:700}#journal-translations label{display:grid;gap:7px;margin:12px 0}#journal-translations input,#journal-translations textarea,#translation-language{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:white}#translation-fields span{overflow-wrap:anywhere}.translation-group h3{font-size:14px;margin-top:20px}

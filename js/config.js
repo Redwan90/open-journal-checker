@@ -1,6 +1,7 @@
 // Copyright 2026 Ridwan Shamoun. Licensed under the Apache License, Version 2.0.
 export const DEFAULT_CONFIG = Object.freeze({
   schemaVersion: 1,
+  translations: {},
   journalName: 'Open Journal Demo',
   journalShortName: 'OJD',
   journalWebsite: 'https://mwsjournal.com/',
@@ -75,6 +76,24 @@ export function normalizeConfig(input = {}) {
     .map(s => str(s, '', 300)).filter(Boolean).slice(0, 20);
   if (!cfg.confirmations.length) cfg.confirmations = [...DEFAULT_CONFIG.confirmations];
   cfg.extraGuidance = str(input.extraGuidance, DEFAULT_CONFIG.extraGuidance, 1500);
+  // Bind translations to exact source wording so edits cannot reuse stale consent text.
+  const sources = { name:[cfg.journalName], guidance:[cfg.extraGuidance], article:cfg.articleTypes,
+    subject:cfg.subjects.map(s => s.name), confirmation:cfg.confirmations };
+  cfg.translations = {};
+  for (const locale of ['en','ar','ku','tr']) {
+    const supplied = input.translations?.[locale];
+    if (!supplied || typeof supplied !== 'object' || Array.isArray(supplied)) continue;
+    const translated = {};
+    for (const [kind, originals] of Object.entries(sources)) {
+      const entries = supplied[kind];
+      if (!entries || typeof entries !== 'object' || Array.isArray(entries)) continue;
+      const values = originals.filter(source => Object.hasOwn(entries, source))
+        .map(source => [source, str(entries[source], '', kind === 'guidance' ? 1500 : kind === 'confirmation' ? 300 : kind === 'name' ? 100 : 80)])
+        .filter(([,value]) => value);
+      if (values.length) translated[kind] = Object.fromEntries(values);
+    }
+    if (Object.keys(translated).length) cfg.translations[locale] = translated;
+  }
   return cfg;
 }
 
