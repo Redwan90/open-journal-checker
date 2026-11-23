@@ -12,7 +12,7 @@ export const messages = {
     "readGuidelines": "Read author guidelines ↗",
     "journalWebsiteLabel": "Journal website ↗",
     "licenseLabel": "Apache-2.0 License ↗",
-    "journalContentNote": "Default demo journal text is translated. Custom journal text remains in its original language.",
+    "journalContentNote": "Journal text uses provided translations. Missing translations use the original wording or the demo translation.",
     "checkTitleValue": "{count}/{max} words",
     "checkAbstractValue": "{count} words · {min}–{max} target",
     "checkKeywordsValue": "{count} terms · {min}–{max} required",
@@ -47,7 +47,7 @@ export const messages = {
     "pdfLibrary": "PDF extraction needs the PDF.js library. Connect to the internet or paste metadata manually.",
     "fileSelect": "Select a PDF or DOCX file.",
     "fileUnsupported": "Only .docx and .pdf manuscripts are supported.",
-    "configTooLarge": "Configuration must be under 100 KB.",
+    "configTooLarge": "Configuration must be under 1 MB.",
     "reportTitle": "Manuscript preparation report",
     "generated": "Generated",
     "manuscript": "Manuscript",
@@ -66,7 +66,11 @@ export const messages = {
     "docxNotes": "Includes {footnotes} footnotes and {endnotes} endnotes. Body headings are checked separately.",
     "docxMissingNotes": "{count} referenced notes could not be found; inspection is incomplete.",
     "pdfNoText": "No extractable PDF text was found. This may be a scanned or image-only file; OCR is not provided.",
-    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Files are inspected on this device."
+    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Files are inspected on this device.",
+    "journalTranslations": "Journal translations (optional)",
+    "translationLanguage": "Translation language",
+    "translationFallback": "Original or demo wording",
+    "translationHelp": "Choose a language and enter translations below each original label. Blank fields use the original wording or the demo translation. Save settings to apply. If you change original wording, its old translation is removed."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -80,7 +84,7 @@ export const messages = {
     "readGuidelines": "اقرأ تعليمات المؤلف ↗",
     "journalWebsiteLabel": "موقع المجلة ↗",
     "licenseLabel": "ترخيص Apache-2.0 ↗",
-    "journalContentNote": "تُترجم نصوص المجلة التجريبية الافتراضية. تبقى النصوص المخصصة التي تدخلها المجلة بلغتها الأصلية.",
+    "journalContentNote": "تستخدم نصوص المجلة الترجمات المقدمة. عند غياب الترجمة، يُستخدم النص الأصلي أو ترجمة المجلة التجريبية.",
     "checkTitleValue": "{count}/{max} كلمة",
     "checkAbstractValue": "{count} كلمة · المستهدف {min}–{max}",
     "checkKeywordsValue": "{count} مصطلحات · المطلوب {min}–{max}",
@@ -115,7 +119,7 @@ export const messages = {
     "pdfLibrary": "يتطلب استخراج PDF مكتبة PDF.js. اتصل بالإنترنت أو أدخل البيانات يدوياً.",
     "fileSelect": "اختر ملف PDF أو DOCX.",
     "fileUnsupported": "تُدعم ملفات المخطوطات بصيغتي .docx و.pdf فقط.",
-    "configTooLarge": "يجب أن يكون ملف الإعدادات أصغر من 100 كيلوبايت.",
+    "configTooLarge": "يجب أن يكون ملف الإعدادات أصغر من 1 ميغابايت.",
     "reportTitle": "تقرير تحضير المخطوطة",
     "generated": "أُنشئ في",
     "manuscript": "المخطوطة",
@@ -134,7 +138,11 @@ export const messages = {
     "docxNotes": "يتضمن {footnotes} حواشي سفلية و{endnotes} حواشي ختامية. تُفحص عناوين المتن بشكل منفصل.",
     "docxMissingNotes": "تعذّر العثور على {count} حواشٍ مشار إليها؛ الفحص غير مكتمل.",
     "pdfNoText": "لم يُعثر على نص قابل للاستخراج في PDF. قد يكون ممسوحاً ضوئياً أو صوراً فقط؛ لا تتوفر ميزة OCR.",
-    "fileLimitLocal": "DOCX حتى 12MB / PDF حتى 15MB · تُفحص الملفات على هذا الجهاز."
+    "fileLimitLocal": "DOCX حتى 12MB / PDF حتى 15MB · تُفحص الملفات على هذا الجهاز.",
+    "journalTranslations": "ترجمات المجلة (اختياري)",
+    "translationLanguage": "لغة الترجمة",
+    "translationFallback": "النص الأصلي أو ترجمة المجلة التجريبية",
+    "translationHelp": "اختر لغة وأدخل الترجمات أسفل كل نص أصلي. تستخدم الحقول الفارغة النص الأصلي أو ترجمة المجلة التجريبية. احفظ الإعدادات للتطبيق. عند تغيير النص الأصلي، تُحذف ترجمته القديمة."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -148,7 +156,7 @@ export const messages = {
     "readGuidelines": "رێنمایێن نڤیسەران بخوینە ↗",
     "journalWebsiteLabel": "وێبسایتا گۆڤارێ ↗",
     "licenseLabel": "مۆڵەتا Apache-2.0 ↗",
-    "journalContentNote": "دەقێن گۆڤارا تاقیکرنێ دهێنە وەرگێڕان. دەقێن تایبەت یێن گۆڤارێ ب زمانێ وان یێ ڕەسەن دمینن.",
+    "journalContentNote": "دەقێن گۆڤارێ وەرگێڕانێن دابینکری بکار دئینن. ل جهێ وەرگێڕان نینە، دەقێ ڕەسەن یان وەرگێڕانا تاقیکرنێ دهێتە بکارئینان.",
     "checkTitleValue": "{count}/{max} پەیڤ",
     "checkAbstractValue": "{count} پەیڤ · ئامانج {min}–{max}",
     "checkKeywordsValue": "{count} پەیڤ · پێدڤی {min}–{max}",
@@ -183,7 +191,7 @@ export const messages = {
     "pdfLibrary": "خواندنا PDF پێدڤی ب PDF.js هەیە. ئینتەرنێتێ ڤەکە یان زانیاریان ب دەست بنڤیسە.",
     "fileSelect": "فایلەکا PDF یان DOCX هەلبژێرە.",
     "fileUnsupported": "بتنێ فایلێن .docx و .pdf دهێنە پشتەڤانیکرن.",
-    "configTooLarge": "فایلێ رێکخستنێ دڤێت ژ 100 کیلۆبایتان بچووکتر بیت.",
+    "configTooLarge": "فایلێ رێکخستنێ دڤێت ژ 1 مێگابایت بچووکتر بیت.",
     "reportTitle": "راپۆرتا ئامادەکرنا ڤەکۆلینێ",
     "generated": "هاتە ئامادەکرن",
     "manuscript": "ڤەکۆلین",
@@ -202,7 +210,11 @@ export const messages = {
     "docxNotes": "{footnotes} پەراوێزێن لاپەڕێ و {endnotes} پەراوێزێن دوماهیێ هاتنە هژمارتن. سەردێڕێن دەقێ سەرەکی جودا دهێنە پشکنین.",
     "docxMissingNotes": "{count} پەراوێزێن ئاماژەپێکری نەهاتنە دیتن؛ پشکنین نەتەمامە.",
     "pdfNoText": "دەقەکێ PDF یا خواندنێ نەهاتە دیتن. دکاریت فایل وێنە یان سکان بیت؛ OCR بەردەست نینە.",
-    "fileLimitLocal": "DOCX 12MB / PDF 15MB · فایل ل سەر ڤێ ئامێرێ دهێنە پشکنین."
+    "fileLimitLocal": "DOCX 12MB / PDF 15MB · فایل ل سەر ڤێ ئامێرێ دهێنە پشکنین.",
+    "journalTranslations": "وەرگێڕانێن گۆڤارێ (دلخواز)",
+    "translationLanguage": "زمانێ وەرگێڕانێ",
+    "translationFallback": "دەقێ ڕەسەن یان یێ گۆڤارا تاقیکرنێ",
+    "translationHelp": "زمانەکی هەلبژێرە و وەرگێڕانێ ل بن هەر دەقەکێ ڕەسەن بنڤیسە. خانەیێن ڤالا دەقێ ڕەسەن یان وەرگێڕانا تاقیکرنێ بکار دئینن. ڕێکخستنان تۆمار بکە. ئەگەر دەقێ ڕەسەن بگۆهۆڕی، وەرگێڕانا وێ یا کەڤن دهێتە ژێبرن."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -216,7 +228,7 @@ export const messages = {
     "readGuidelines": "Yazar rehberini oku ↗",
     "journalWebsiteLabel": "Dergi web sitesi ↗",
     "licenseLabel": "Apache-2.0 Lisansı ↗",
-    "journalContentNote": "Varsayılan demo dergisinin metinleri çevrilir. Derginin girdiği özel metinler özgün dilinde kalır.",
+    "journalContentNote": "Dergi metinlerinde sağlanan çeviriler kullanılır. Eksik çevirilerde özgün metin veya demo çevirisi kullanılır.",
     "checkTitleValue": "{count}/{max} kelime",
     "checkAbstractValue": "{count} kelime · hedef {min}–{max}",
     "checkKeywordsValue": "{count} terim · gerekli {min}–{max}",
@@ -251,7 +263,7 @@ export const messages = {
     "pdfLibrary": "PDF çıkarma için PDF.js gerekir. İnternete bağlanın veya bilgileri elle girin.",
     "fileSelect": "Bir PDF veya DOCX dosyası seçin.",
     "fileUnsupported": "Yalnızca .docx ve .pdf makale dosyaları desteklenir.",
-    "configTooLarge": "Yapılandırma dosyası 100 KB altında olmalıdır.",
+    "configTooLarge": "Yapılandırma dosyası 1 MB altında olmalıdır.",
     "reportTitle": "Makale hazırlık raporu",
     "generated": "Oluşturulma tarihi",
     "manuscript": "Makale",
@@ -270,6 +282,10 @@ export const messages = {
     "docxNotes": "{footnotes} dipnot ve {endnotes} sonnot içerir. Gövde başlıkları ayrı denetlenir.",
     "docxMissingNotes": "Atıfta bulunulan {count} not bulunamadı; inceleme eksik.",
     "pdfNoText": "PDF’te çıkarılabilir metin bulunamadı. Dosya taranmış veya yalnızca görüntü içeriyor olabilir; OCR sunulmaz.",
-    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Dosyalar bu cihazda incelenir."
+    "fileLimitLocal": "DOCX 12 MB / PDF 15 MB · Dosyalar bu cihazda incelenir.",
+    "journalTranslations": "Dergi çevirileri (isteğe bağlı)",
+    "translationLanguage": "Çeviri dili",
+    "translationFallback": "Özgün metin veya demo çevirisi",
+    "translationHelp": "Bir dil seçin ve her özgün metnin altına çevirisini girin. Boş alanlarda özgün metin veya demo çevirisi kullanılır. Uygulamak için ayarları kaydedin. Özgün metni değiştirirseniz eski çevirisi kaldırılır."
   }
 };

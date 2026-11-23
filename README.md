@@ -128,7 +128,26 @@ The revision model follows the Open XML distinction between [deleted](https://le
 
 The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection checks all supported manuscript languages independently of the interface language; it remains heuristic and does not affect the readiness score.
 
-Built-in demo journal names, article types, subject labels, guidance and all ten author declarations are translated. Matching uses canonical values so selections and confirmations survive language changes. Custom journal wording and scope-matching terms remain as supplied. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
+Built-in demo journal names, article types, subject labels, guidance and all ten author declarations are translated. Matching uses canonical values so selections and confirmations survive language changes. Custom journal wording uses administrator-provided translations when available; missing translations fall back to the original text. Scope-matching terms remain as supplied. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
+
+To translate a custom journal, open **Journal settings → Journal translations (optional)**. Choose a language, enter translations below the original labels, then save. You can switch translation languages before saving without losing your draft. Empty fields use the original text or a built-in demo translation. Changing an original declaration removes its previous translation; saving settings clears author confirmations so the revised rules must be reviewed again. Translations are plain text and are never sent to an automatic translation service.
+
+Exported settings include an optional `translations` object. Its keys are `en`, `ar`, `ku` and `tr`; each language can contain `name`, `guidance`, `article`, `subject` and `confirmation` maps from the **exact original wording** to its translation. For example:
+
+```json
+{
+  "journalName": "Custom Journal",
+  "confirmations": ["All authors approved this submission."],
+  "translations": {
+    "ar": {
+      "name": {"Custom Journal": "مجلة مخصصة"},
+      "confirmation": {"All authors approved this submission.": "وافق جميع المؤلفين على هذا التقديم."}
+    }
+  }
+}
+```
+
+The same format works in hosted `journal-settings.json`. Existing settings files without translations continue to work. Imports are limited to 1 MB and translations are bounded to the corresponding field lengths; unsupported languages and translations without matching original wording are ignored. Report JSON keeps canonical manuscript selections, adds the translation snapshot in `journalTranslations`, and includes `sourceDescription` alongside each translated declaration description.
 
 Translations are in `js/i18n.js`, `js/messages.js` and `js/journal-i18n.js`. Tests require equal key coverage and matching template parameters in every locale, and exercise localized downloads in Chromium and Firefox. Native-speaker review remains welcome, especially for Kurdish Badini; automated checks establish coverage and behavior, not linguistic certification.
 

@@ -93,7 +93,9 @@ const localized = {
   ]
 };
 
-export function journalText(language, kind, value) {
+export function journalText(language, kind, value, translations = {}) {
+  const custom = Object.hasOwn(translations, language) ? translations[language]?.[kind] : null;
+  if (custom && Object.hasOwn(custom, value) && typeof custom[value] === 'string' && custom[value].trim()) return custom[value];
   const locale = localized[language];
   if (!locale) return value;
   if (kind === 'name') return value === DEFAULT_CONFIG.journalName ? locale[0] : value;

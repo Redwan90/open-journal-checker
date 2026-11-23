@@ -17,7 +17,7 @@ function app(fetch = async () => ({ok:false}), storage = {getItem:()=>null,setIt
   };
   const source = readFileSync(new URL('../js/main.js',import.meta.url),'utf8')
     .replace(/^import .*;\r?\n/gm,'').replace("attach(); updateLanguage('en'); loadHostedConfig();",'');
-  const context=vm.createContext({journalText,
+  const context=vm.createContext({journalText,structuredClone,
     document:{getElementById:node,documentElement:{},querySelectorAll:()=>[]},
     localStorage:storage,
     DEFAULT_CONFIG,normalizeConfig,parseSubjects,evaluate,fetch,VERSION,

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 — 2026-11-23
+
+- Add optional journal translations in English, Arabic, Kurdish Badini and Turkish for the journal name, article types, subject labels, guidance and author declarations, with a language-by-language settings editor.
+- Preserve translations in saved, imported, exported and hosted settings and downloaded reports. Missing translations fall back to original wording or built-in demo translations.
+- Bind translations to exact original text: changed or removed rules discard stale translations, while language changes preserve canonical selections and confirmations. Saving settings still requires renewed author confirmation.
+- Increase the journal JSON import limit to 1 MB to accommodate multilingual settings; keep all translated output as plain text.
+
 ## 1.1.2 — 2026-11-23
 
 - Detect common abstract, keywords, methods and references headings in English, Arabic, Kurdish (Arabic and Latin scripts) and Turkish, independently of the interface language.
