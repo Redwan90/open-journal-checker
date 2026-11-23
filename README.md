@@ -4,7 +4,7 @@
 
 **Version 1.1.0** · [Release notes](CHANGELOG.md)
 
-**A configurable, privacy-first manuscript preparation and submission-readiness checker for scholarly journals.** Created by Ridwan Shamoun.
+**A configurable, privacy-first manuscript preparation and submission-readiness checker for scholarly journals.** Created by [Ridwan Shamoun](https://ridwanmarqas.com/).
 
 Originally inspired by the publicly observable workflow of the [Milky Way Scientific Journal author preparation checker](https://mwsjournal.com/checker/), this is a new, independent and generic implementation. It does not copy the original application's code or any proprietary journal assets. The published MWSJ tool remains unchanged.
 
@@ -128,9 +128,9 @@ The revision model follows the Open XML distinction between [deleted](https://le
 
 The application interface, accessibility labels, validation hints, file errors/results, Crossref feedback and HTML reports support English, Arabic, Kurdish Badini and Turkish. Arabic and Kurdish reports use right-to-left layout. Language changes also refresh existing file errors and lookup results. Heading detection itself still uses English patterns; changing the interface language does not change this limitation or the readiness rules.
 
-Journal names, article types, subject terms, policies and author declarations remain exactly as supplied by the journal. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
+Built-in demo journal names, article types, subject labels, guidance and all ten author declarations are translated. Matching uses canonical values so selections and confirmations survive language changes. Custom journal wording and scope-matching terms remain as supplied. Manuscript text, filenames and Crossref titles are also preserved. The interface explains this distinction. JSON exports retain stable field names and ISO timestamps, add the selected `language`, and localize human-readable diagnostics.
 
-Translations are in `js/i18n.js` and `js/messages.js`. Tests require equal key coverage and matching template parameters in every locale, and exercise localized downloads in Chromium and Firefox. Native-speaker review remains welcome, especially for Kurdish Badini; automated checks establish coverage and behavior, not linguistic certification.
+Translations are in `js/i18n.js`, `js/messages.js` and `js/journal-i18n.js`. Tests require equal key coverage and matching template parameters in every locale, and exercise localized downloads in Chromium and Firefox. Native-speaker review remains welcome, especially for Kurdish Badini; automated checks establish coverage and behavior, not linguistic certification.
 
 ## Privacy, licenses and security
 

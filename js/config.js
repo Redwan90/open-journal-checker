@@ -3,7 +3,7 @@ export const DEFAULT_CONFIG = Object.freeze({
   schemaVersion: 1,
   journalName: 'Open Journal Demo',
   journalShortName: 'OJD',
-  journalWebsite: 'https://example.org',
+  journalWebsite: 'https://mwsjournal.com/',
   guidelinesUrl: 'https://example.org/author-guidelines',
   submissionUrl: 'https://example.org/submissions',
   logoUrl: '',

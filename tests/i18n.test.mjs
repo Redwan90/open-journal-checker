@@ -1,3 +1,4 @@
+import { journalText } from '../js/journal-i18n.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -32,7 +33,7 @@ for(const locale of ['en','ar','ku','tr']) {
   test(`Downloaded ${locale} report uses its language and direction and escapes author content`,()=>{
     const source=readFileSync(new URL('../js/main.js',import.meta.url),'utf8')
       .replace(/^import .*;\r?\n/gm,'').replace("attach(); updateLanguage('en'); loadHostedConfig();",'');
-    const context=vm.createContext({document:{},localStorage:{getItem:()=>null},normalizeConfig,t,rtl});
+    const context=vm.createContext({journalText,document:{},localStorage:{getItem:()=>null},normalizeConfig,t,rtl});
     vm.runInContext(source,context);
     const config=normalizeConfig({confirmations:['Original journal declaration <script>unsafe()</script>']});
     const manuscript={title:'<img src=x onerror=unsafe()>',abstract:'',keywords:'<b>keywords</b>',confirmed:[]};

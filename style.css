@@ -31,3 +31,5 @@ input::placeholder,textarea::placeholder{color:#546579;opacity:1}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
 @media print{body{background:#fff}.site-header,.nav-actions,.hero-stat,.safety-bar,.summary-buttons,.drop-zone,.footer,.help-card,.disclaimer,#settings-dialog,.doi-zone{display:none!important}.hero{background:none;color:#000;display:block;min-height:0}.hero-content{padding:15px 0}.hero h1,.hero h1 em{color:black}.columns{display:block}.panel,.summary-card{box-shadow:none;border:1px solid #bbb;margin-bottom:14px}.summary-card{position:static}}
+
+.footer a[href='https://ridwanmarqas.com/']{text-decoration:underline;text-underline-offset:2px}
