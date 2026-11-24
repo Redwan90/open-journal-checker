@@ -5,8 +5,8 @@ export const DEFAULT_CONFIG = Object.freeze({
   journalName: 'Open Journal Demo',
   journalShortName: 'OJD',
   journalWebsite: 'https://mwsjournal.com/',
-  guidelinesUrl: 'https://example.org/author-guidelines',
-  submissionUrl: 'https://example.org/submissions',
+  guidelinesUrl: 'https://mwsjournal.com/index.php/mws/about/submissions#authorGuidelines',
+  submissionUrl: 'https://mwsjournal.com/index.php/mws/about/submissions',
   logoUrl: '',
   accent: '#225d8f',
   articleTypes: ['Research Article', 'Review Article', 'Short Communication', 'Case Study', 'Methodology Paper'],
@@ -51,8 +51,10 @@ export function normalizeConfig(input = {}) {
   cfg.journalName = str(input.journalName, DEFAULT_CONFIG.journalName, 100) || DEFAULT_CONFIG.journalName;
   cfg.journalShortName = str(input.journalShortName, DEFAULT_CONFIG.journalShortName, 24);
   cfg.journalWebsite = cleanUrl(input.journalWebsite ?? DEFAULT_CONFIG.journalWebsite);
-  cfg.guidelinesUrl = cleanUrl(input.guidelinesUrl ?? DEFAULT_CONFIG.guidelinesUrl);
-  cfg.submissionUrl = cleanUrl(input.submissionUrl ?? DEFAULT_CONFIG.submissionUrl);
+  // Repair only shipped demo placeholders; retain custom-journal destinations.
+  const legacyDemo = cfg.journalName === DEFAULT_CONFIG.journalName;
+  cfg.guidelinesUrl = cleanUrl(legacyDemo && input.guidelinesUrl === 'https://example.org/author-guidelines' ? DEFAULT_CONFIG.guidelinesUrl : input.guidelinesUrl ?? DEFAULT_CONFIG.guidelinesUrl);
+  cfg.submissionUrl = cleanUrl(legacyDemo && input.submissionUrl === 'https://example.org/submissions' ? DEFAULT_CONFIG.submissionUrl : input.submissionUrl ?? DEFAULT_CONFIG.submissionUrl);
   cfg.logoUrl = cleanUrl(input.logoUrl ?? '');
   cfg.accent = /^#[0-9a-fA-F]{6}$/.test(input.accent ?? '') ? input.accent : DEFAULT_CONFIG.accent;
   cfg.titleMaxWords = positiveInt(input.titleMaxWords, 20, 5, 100);

@@ -4,8 +4,8 @@
   "journalName": "Open Journal Demo",
   "journalShortName": "OJD",
   "journalWebsite": "https://mwsjournal.com/",
-  "guidelinesUrl": "https://example.org/author-guidelines",
-  "submissionUrl": "https://example.org/submissions",
+  "guidelinesUrl": "https://mwsjournal.com/index.php/mws/about/submissions#authorGuidelines",
+  "submissionUrl": "https://mwsjournal.com/index.php/mws/about/submissions",
   "logoUrl": "",
   "accent": "#225d8f",
   "articleTypes": [

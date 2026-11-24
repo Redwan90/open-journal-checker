@@ -172,3 +172,5 @@ Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Academic user
 ## Support
 
 File issues and pull requests in the GitHub repository after publishing. Please do not submit unpublished manuscripts, reviewer identities, or API keys in bug reports.
+
+The demo’s journal website, author-guidelines and submission links lead to MWSJ. Its displayed rules remain generic examples, not a synchronized MWSJ policy preset. Configure the rules and links for the intended journal; the journal’s published guidelines take precedence. Old saved demo configurations migrate only the two exact example.org placeholders. Custom journal links and deliberately empty links remain unchanged.
