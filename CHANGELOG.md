@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 — 2026-11-24
+
+- Replace the remaining demo guideline and submission placeholder links with verified MWSJ destinations, including the author-guidelines anchor.
+- Repair the two exact legacy links in saved demo configurations while retaining custom-journal and deliberately empty destinations.
+- Keep demo rules generic and document that published journal guidelines take precedence. No change to the original MWSJ checker.
+
 ## 1.3.1 — 2026-11-24
 
 - Keep combining accent and vowel marks inside words, correcting inflated Arabic and decomposed-Unicode word counts in metadata and file inspection.

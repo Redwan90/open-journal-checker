@@ -151,3 +151,13 @@ test('Canonically equivalent keyword spellings cannot bypass duplicate checks',(
  }
  assert.equal(evaluate({...good,keywords:'cafe; café; data'},config).checks[2].pass,true);
 });
+
+
+test('Only shipped demo navigation placeholders migrate; custom and deliberately empty links remain intact',async()=>{
+ const legacy={journalName:DEFAULT_CONFIG.journalName,guidelinesUrl:'https://example.org/author-guidelines',submissionUrl:'https://example.org/submissions'};
+ const migrated=normalizeConfig(legacy);assert.equal(migrated.guidelinesUrl,DEFAULT_CONFIG.guidelinesUrl);assert.equal(migrated.submissionUrl,DEFAULT_CONFIG.submissionUrl);
+ const custom=normalizeConfig({...legacy,journalName:'Independent Journal'});assert.equal(custom.guidelinesUrl,legacy.guidelinesUrl);assert.equal(custom.submissionUrl,legacy.submissionUrl);
+ const own={guidelinesUrl:'https://journal.example/guide',submissionUrl:'https://journal.example/submit'};const configured=normalizeConfig(own);assert.equal(configured.guidelinesUrl,own.guidelinesUrl);assert.equal(configured.submissionUrl,own.submissionUrl);
+ const empty=normalizeConfig({guidelinesUrl:'',submissionUrl:''});assert.equal(empty.guidelinesUrl,'');assert.equal(empty.submissionUrl,'');
+ const hosted=JSON.parse(await (await import('node:fs/promises')).readFile(new URL('../journal-settings.json',import.meta.url),'utf8'));assert.equal(hosted.guidelinesUrl,DEFAULT_CONFIG.guidelinesUrl);assert.equal(hosted.submissionUrl,DEFAULT_CONFIG.submissionUrl);
+});
