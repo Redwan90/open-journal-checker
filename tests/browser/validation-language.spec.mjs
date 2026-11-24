@@ -16,9 +16,8 @@ for(const locale of ['en','ar','ku','tr'])test(`Manuscript language controls val
  expect(report.manuscript.manuscriptLanguage).toBe('tr');expect(report.evaluation.manuscriptLanguage).toBe('tr');expect(report.evaluation.keywordLocale).toBe('tr');expect(report.evaluation.scope.matches).toContain('IŞIK');expect(report.manuscript.title).toBe('ışık');
  await page.locator('#manuscript-language').selectOption('en');await expect(page.locator('#checks .check-row').nth(3)).not.toHaveClass(/is-good/);await expect(page.locator('#checks .check-row').nth(4)).not.toHaveClass(/is-good/);
  await expect(page.locator('#confirmations input').first()).toBeChecked();
- await page.locator('#manuscript-language').selectOption('ku');
- const supportedKurdish=await page.evaluate(()=>Intl.Collator.supportedLocalesOf(['ku']).length>0);
- if(!supportedKurdish){await expect(page.locator('#validation-note')).toHaveText(t(locale,'validationUnavailable'));expect((await jsonReport(page)).evaluation.keywordOrderWarning).toBe(t(locale,'validationUnavailable'));}else await expect(page.locator('#validation-note')).toBeHidden();
+ await page.locator('#keywords').fill('cizre; çay; dar');await page.locator('#manuscript-language').selectOption('ku');
+ await expect(page.locator('#validation-note')).toBeHidden();expect((await jsonReport(page)).evaluation.keywordOrderingMethod).toBe('hawar-v1');
  await page.locator('#manuscript-language').selectOption('ku-Arab');await expect(page.locator('#validation-note')).toHaveText(t(locale,'validationOrderNote'));await expect(page.locator('#validation-note')).toBeVisible();
  expect((await jsonReport(page)).evaluation.keywordLocale).toBe('ar');
  const download=page.waitForEvent('download');await page.locator('#download-report').click();const html=await readFile(await (await download).path(),'utf8');expect(html).toContain(t(locale,'validationKurdishArabic'));expect(html).toContain(t(locale,'validationOrderNote'));
@@ -39,10 +38,19 @@ test('Native Kurdish Latin and Arabic ordering and Turkish uniqueness use the ch
  await page.goto('/built/');
  for(const [language,keywords,pass] of [['ku','cizre; çay; dar',true],['en','cizre; çay; dar',false],['ar','بحث؛ بيانات؛ تعليم',true]]){
   await page.locator('#manuscript-language').selectOption(language);await page.locator('#keywords').fill(keywords);
-  const supported=await page.evaluate(language=>Intl.Collator.supportedLocalesOf([language]).length>0,language);
+  const supported=language==='ku' || await page.evaluate(language=>Intl.Collator.supportedLocalesOf([language]).length>0,language);
   if(pass && supported)await expect(page.locator('#checks .check-row').nth(3)).toHaveClass(/is-good/);else await expect(page.locator('#checks .check-row').nth(3)).not.toHaveClass(/is-good/);
   if(!supported){await expect(page.locator('#validation-note')).toHaveText(t('en','validationUnavailable'));const report=await jsonReport(page);expect(report.evaluation.keywordOrderAvailable).toBe(false);expect(report.evaluation.keywordLocale).toBeNull();expect(report.evaluation.keywordOrderWarning).toBe(t('en','validationUnavailable'));}
  }
  await page.locator('#manuscript-language').selectOption('tr');await page.locator('#keywords').fill('IŞIK; ışık; veri');await expect(page.locator('#checks .check-row').nth(2)).not.toHaveClass(/is-good/);
  await page.locator('#keywords').fill('IŞIK; işik; veri');await expect(page.locator('#checks .check-row').nth(2)).toHaveClass(/is-good/);
+});
+
+
+test('Portable Kurdish ordering rejects inversions and exposes mixed-script limits in reports',async({page})=>{
+ await page.goto('/built/');await page.locator('#manuscript-language').selectOption('ku');
+ await page.locator('#keywords').fill('cizre; çay; dar');await expect(page.locator('#checks .check-row').nth(3)).toHaveClass(/is-good/);
+ await page.locator('#keywords').fill('çay; cizre; dar');await expect(page.locator('#checks .check-row').nth(3)).not.toHaveClass(/is-good/);
+ await page.locator('#keywords').fill('cizre; پوختە; dar');await expect(page.locator('#validation-note')).toHaveText(t('en','validationUnavailable'));
+ const report=await jsonReport(page);expect(report.evaluation.keywordOrderAvailable).toBe(false);expect(report.evaluation.keywordOrderingMethod).toBeNull();expect(report.manuscript.keywords).toBe('cizre; پوختە; dar');
 });

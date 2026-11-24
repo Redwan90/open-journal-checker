@@ -16,3 +16,7 @@ Consult those notices for each component's terms. The project's Apache-2.0 licen
 ## Optional OCR
 
 Tesseract.js 7.0.0 and tesseract.js-core 7.0.0: Apache-2.0. English, Arabic and Turkish model packages: @tesseract.js-data version 1.0.0. Upstream Naptha tessdata supplies Apache-2.0 licensing; package metadata declares MIT and is also preserved. Engine, bundled worker, core and tessdata license texts and language package metadata ship under vendor/ocr/licenses/. Sources: https://github.com/naptha/tesseract.js and https://github.com/naptha/tessdata .
+
+## Kurdish Latin letter tailoring
+
+The portable comparator is original application code informed by the primary-letter and alternative-spelling data in Unicode CLDR common/collation/ku.xml. CLDR ku.xml: Copyright © 2014 Unicode, Inc. Unicode CLDR data is covered by Unicode-3.0; its copyright and permission notice is retained in licenses/unicode-LICENSE and included in release archives. Source: https://github.com/unicode-org/cldr/blob/main/common/collation/ku.xml .

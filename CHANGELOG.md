@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 — 2026-11-24
+
+- Add portable Northern Kurdish Latin primary-letter ordering so Chrome and Edge no longer depend on missing native Kurdish collation data. Handle Hawar letter distinctions, Unicode decomposition, case and CLDR alternative spellings while preserving original input.
+- Record the ordering method in JSON reports; leave mixed scripts and unhandled characters pending with a translated explanation. Arabic-script Kurdish ordering remains approximate.
+- Add actual Google Chrome and Microsoft Edge projects for critical validation, file-inspection, OCR and accessible-navigation checks; require them before deployment.
+- Verify the portable ordering against a reproducible 2,000-pair native-ICU corpus and ship Unicode data attribution.
+
 ## 1.4.0 — 2026-11-24
 
 - Add a translated manuscript-language selector, independent of display language, for explicit keyword collation and case comparisons. Record the choice in reports and reset it with Clear entries.

@@ -1,3 +1,4 @@
+import { createKurdishLatinCollator } from './kurdish-collation.js';
 // Pure validation and inspection: no network access and no manuscript storage.
 export function wordCount(text = '') {
   // Combining vowel/accent marks belong to their letter, not a new word.
@@ -10,14 +11,15 @@ export function parseKeywords(text = '') {
 const validationLanguages = ['en','ar','tr','ku','ku-Arab'];
 const manuscriptLanguage = value => validationLanguages.includes(value) ? value : 'en';
 const collationLocale = language => manuscriptLanguage(language) === 'ku-Arab' ? 'ar' : manuscriptLanguage(language);
-const keywordCollator = language => {
+const keywordCollator = (language, keywords = []) => {
+  if (manuscriptLanguage(language) === 'ku') return createKurdishLatinCollator(keywords);
   const locale = collationLocale(language);
-  return Intl.Collator.supportedLocalesOf([locale]).length ? new Intl.Collator(locale, {usage:'sort', sensitivity:'base'}) : null;
+  return Intl.Collator.supportedLocalesOf([locale]).length ? Object.assign(new Intl.Collator(locale, {usage:'sort', sensitivity:'base'}),{method:'intl'}) : null;
 };
 const keywordKey = (text, locale) => String(text).normalize('NFC').toLocaleLowerCase(locale).normalize('NFC');
 export function keywordsAlphabetical(keywords, language = 'en') {
   if (!keywords.length) return false;
-  const collator = keywordCollator(language);
+  const collator = keywordCollator(language, keywords);
   if (!collator) return false; // Never silently score an unsupported language as English.
   return keywords.every((word, i) => i === 0 || collator.compare(keywords[i - 1], word) <= 0);
 }
@@ -61,8 +63,8 @@ export function evaluate(manuscript, config) {
   }));
   const all = [...checks, ...confirmations];
   const passed = all.filter(x => x.pass).length;
-  const collator = keywordCollator(language);
-  return { manuscriptLanguage:language, keywordOrderAvailable:!!collator, keywordLocale:collator?.resolvedOptions().locale || null, checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
+  const collator = keywordCollator(language, keywords);
+  return { manuscriptLanguage:language, keywordOrderAvailable:!!collator, keywordOrderingMethod:collator?.method || null, keywordLocale:collator?.resolvedOptions().locale || null, checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
 }
 export function extractDois(text = '') {
   const input = String(text);

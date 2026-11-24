@@ -9,9 +9,9 @@ test('Release build inspects PDF/DOCX with external requests blocked',async({pag
   await page.route('**/*',route=>{
     const url=new URL(route.request().url());
     if(url.origin!=='http://127.0.0.1:8765') {
-      // Endpoint security may inject telemetry into Firefox; all external
+      // Endpoint security may inject telemetry into branded browsers and Firefox; all external
       // requests stay blocked, including that instrumentation.
-      if(url.hostname!=='ff.kis.v2.scr.kaspersky-labs.com') external.push(url.origin);
+      if(!url.hostname.endsWith('.kaspersky-labs.com')) external.push(url.origin);
       return route.abort();
     }
     return route.continue();
@@ -35,7 +35,7 @@ test('Release build inspects PDF/DOCX with external requests blocked',async({pag
 });
 
 test('Release bundle exposes licenses and excludes repository internals',async({request})=>{
-  for(const path of ['docs/OCR.md','vendor/ocr/licenses/tesseract-LICENSE','vendor/ocr/licenses/core-LICENSE','vendor/ocr/licenses/tessdata-LICENSE','vendor/ocr/licenses/eng-package.json','vendor/ocr/licenses/ara-package.json','vendor/ocr/licenses/tur-package.json','docs/OJS-INTEGRATION.md','docs/ACCESSIBILITY.md','LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
+  for(const path of ['licenses/unicode-LICENSE','docs/OCR.md','vendor/ocr/licenses/tesseract-LICENSE','vendor/ocr/licenses/core-LICENSE','vendor/ocr/licenses/tessdata-LICENSE','vendor/ocr/licenses/eng-package.json','vendor/ocr/licenses/ara-package.json','vendor/ocr/licenses/tur-package.json','docs/OJS-INTEGRATION.md','docs/ACCESSIBILITY.md','LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
     expect((await request.get('/built/'+path)).status()).toBe(200);
   }
   for(const path of ['.git/config','node_modules/pdfjs-dist/package.json','.github/workflows/ci.yml','tests/server.mjs']) {

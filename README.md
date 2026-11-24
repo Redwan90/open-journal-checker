@@ -49,11 +49,11 @@ For browser regression tests, install the development-only dependencies and brow
 
 ```bash
 npm ci
-npx playwright install chromium firefox
+npx playwright install chromium firefox chrome msedge
 npm run test:browser
 ```
 
-These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They check Chromium and Firefox, narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. See the [accessibility check record and remaining human review](docs/ACCESSIBILITY.md). The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
+These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They run the full suite in Chromium and Firefox, plus focused validation, deployed-file inspection, scanned-PDF OCR and accessible-navigation checks in actual Google Chrome and Microsoft Edge. They cover narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. See the [accessibility check record and remaining human review](docs/ACCESSIBILITY.md). The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
 
 ## Deploy for a journal
 
@@ -62,7 +62,7 @@ These tests serve the actual application under `/open-journal-checker/` with its
 - Configure `journal-settings.json` for your journal, and add a navigation link on your OJS site to `/checker/`.
 - See [OJS integration instructions](docs/OJS-INTEGRATION.md), including the tested OJS 3.5 navigation workflow and optional staging round-trip check.
 
-**GitHub Pages:** Set **Settings → Pages → Source → GitHub Actions**. The workflow publishes only from `main`, after both core and Chromium/Firefox tests succeed, using the exact built artifact tested in that run. PRs cannot deploy. A freshness check skips a superseded commit. Failed checks retain the previous deployed site. The build uses relative paths, includes `.nojekyll`, and records its version/commit in `version.json`. Do not enable legacy branch publishing alongside this workflow.
+**GitHub Pages:** Set **Settings → Pages → Source → GitHub Actions**. The workflow publishes only from `main`, after core, Chromium/Firefox and focused Chrome/Edge tests succeed, using the exact built artifact tested in that run. PRs cannot deploy. A freshness check skips a superseded commit. Failed checks retain the previous deployed site. The build uses relative paths, includes `.nojekyll`, and records its version/commit in `version.json`. Do not enable legacy branch publishing alongside this workflow.
 
 ## Self-hosted and offline inspection
 
@@ -177,10 +177,14 @@ The demo’s journal website, author-guidelines and submission links lead to MWS
 
 ## Manuscript language and subject matching
 
-Choose **Manuscript language** in the metadata section. It controls keyword ordering, language-specific case comparisons and subject comparison; the display-language selector only translates the interface. Changing display language preserves the manuscript choice, score and author confirmations. The manuscript language defaults to English, remains in memory for this session and resets to English with Clear entries. Reports record the selected manuscript language and the browser’s resolved keyword collation locale.
+Choose **Manuscript language** in the metadata section. It controls keyword ordering, language-specific case comparisons and subject comparison; the display-language selector only translates the interface. Changing display language preserves the manuscript choice, score and author confirmations. The manuscript language defaults to English, remains in memory for this session and resets to English with Clear entries. Reports record the selected manuscript language and the effective keyword locale and ordering method.
 
-English, Arabic, Turkish and Latin-script Kurdish request explicit browser Intl collations, rather than the computer’s default locale. If the browser lacks a requested collation, ordering remains pending and a translated warning appears in the form and reports; it never silently substitutes English. The tested Firefox supports Kurdish Latin collation; the tested Chromium does not. Arabic-script Kurdish uses **approximate Arabic ordering**, labelled in the form and report; native Badini alphabetization still needs human review. Mixed-language keyword lists and journal-specific sorting rules need editorial judgment. Unicode/CLDR versions in browsers may differ. See [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator) and the [CLDR Kurdish collation definition](https://github.com/unicode-org/cldr/blob/main/common/collation/ku.xml), which tailors Northern Kurdish Latin letters.
+English, Arabic and Turkish request explicit browser Intl collations, rather than the computer’s default locale. Kurdish Latin uses a portable Northern Kurdish/Hawar primary-letter comparator (`hawar-v1`) in Chrome, Edge, Chromium and Firefox, even when the browser omits native Kurdish collation data. It preserves the distinct positions of ç, ê, î, ş and û and handles canonical decompositions, case and CLDR’s alternative é/í/ú/ù spellings. Normal ASCII letters, digits, spaces and punctuation are supported. The comparison uses English primary collation only after Kurdish letter weights have been encoded; original keywords stay unchanged. It is not a full ICU replacement. Mixed-script lists and unhandled characters remain pending with a translated explanation instead of receiving an invented order. Reports identify the method and effective locale.
+
+Arabic-script Kurdish still uses **approximate Arabic ordering**, labelled in the form and report; native Badini alphabetization needs human review. Mixed-language keyword lists and journal-specific rules need editorial judgment. See the [CLDR Kurdish collation definition](https://github.com/unicode-org/cldr/blob/main/common/collation/ku.xml), which tailors Northern Kurdish Latin letters. Unicode data attribution is retained in the release licenses.
 
 Subject matching normalizes a comparison copy: Unicode compatibility forms, repeated whitespace and line breaks, Arabic vocalization and elongation. Meaningful Latin/Kurdish accents stay distinct. Marks and joining characters are part of word boundaries, preventing matches inside larger words. A phrase must appear in one metadata field or one keyword; it cannot be assembled across fields. Original manuscript text and configured matched terms remain unchanged in reports. This is literal keyword overlap, not translation, stemming, semantic topic inference or editorial scope approval.
 
 Newly entered subject terms retain their original case so Turkish dotted/dotless I can be compared correctly. Re-enter Turkish terms whose spelling was altered in an older saved configuration; lost capitalization cannot be recovered automatically.
+
+The full browser command requires Chrome and Edge in addition to Playwright’s bundled browsers. To run only the bundled-engine suite, use `npm run test:browser -- --project=chromium --project=firefox`. The branded-browser projects reuse critical-flow tests and are deployment gates in CI.
