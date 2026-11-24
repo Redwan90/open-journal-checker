@@ -42,15 +42,17 @@ for(const language of ['ara+eng','tur+eng'])test(`Pinned ${language} OCR model i
   const controller=new AbortController();const engine=createOcrEngine(controller.signal);
   const timer=setTimeout(()=>controller.abort(),60000);
   try {
-   await engine.initialize(language);const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=250;
-   const context=canvas.getContext('2d');context.fillStyle='white';context.fillRect(0,0,1000,250);context.fillStyle='black';context.font='60px Arial';
-   const sample=language.startsWith('ara')?'الملخص':language.startsWith('kur')?'پوختە':'Özet';
-   if(language.startsWith('ara')||language.startsWith('kur')){context.direction='rtl';context.textAlign='right';context.fillText(sample,900,150);}else context.fillText(sample,70,150);
+   await engine.initialize(language);const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=700;
+   const context=canvas.getContext('2d');context.fillStyle='white';context.fillRect(0,0,1240,700);context.fillStyle='black';context.font='60px Arial';
+   if(language.startsWith('ara')) {
+    context.direction='rtl';context.textAlign='right';
+    ['الملخص','هذه دراسة علمية عن التعليم والبحث العلمي','تهدف هذه الدراسة إلى تحليل البيانات والنتائج','المراجع'].forEach((line,index)=>context.fillText(line,1150,140+index*120));
+   } else context.fillText('Özet',70,150);
    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));return await engine.recognize(new Uint8Array(await blob.arrayBuffer()));
   } finally {clearTimeout(timer);engine.terminate();}
  },language);
  expect(text.trim().length).toBeGreaterThan(2);
- if(language.startsWith('ara')||language.startsWith('kur'))expect(text).toMatch(/[\u0600-\u06ff]/u);
+ if(language.startsWith('ara'))expect(text).toMatch(/[\u0600-\u06ff]/u);
 });
 
 for(const action of ['cancel','clear','replace'])test(`OCR ${action} during model loading terminates work and cannot restore stale results`,async({page,context})=>{
