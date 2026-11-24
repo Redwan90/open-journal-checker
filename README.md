@@ -99,10 +99,12 @@ The settings interface is not an authentication or authorization system; any vis
 
 1. Nonempty title at or below maximum word count.
 2. Abstract within journal-defined word-count range.
-3. Required number of unique, semicolon-separated keywords.
+3. Required number of unique keywords separated by Latin (;), Arabic (؛) or fullwidth (；) semicolons.
 4. Alphabetical keyword order.
 5. At least one configured subject phrase appears in title, abstract or keywords.
 6. Each selected author confirmation counts as one additional check.
+
+Word counts keep combining accents and vowel marks attached to their letters. Keyword duplicate comparisons treat canonically equivalent Unicode spellings as identical; original text stays unchanged in inputs and reports. Counts remain heuristic and may differ from a journal’s word processor.
 
 This is **self-reported preparation**, not a scientific or editorial quality metric. Scope matching uses simple keyword patterns and can produce false positives/negatives. Heading detection recognizes common English, Arabic, Kurdish (Arabic and Latin scripts) and Turkish labels and works best on text-based files. It accepts numbered headings and colon-separated inline text; extraction order, uncommon wording and damaged font mappings can still prevent detection. Scanned PDFs may contain no extractable text.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1 — 2026-11-24
+
+- Keep combining accent and vowel marks inside words, correcting inflated Arabic and decomposed-Unicode word counts in metadata and file inspection.
+- Accept Latin, Arabic and fullwidth semicolons as keyword separators.
+- Reject canonically equivalent keyword duplicates while preserving original spelling in fields and reports.
+- Verify counters, validation and both report formats in all four interface languages.
+
 ## 1.3.0 — 2026-11-24
 
 - Add explicitly activated, local scanned-PDF OCR for English, Arabic and Turkish with self-hosted pinned processing assets. Kurdish OCR is deferred after native-script sample recognition failed.
