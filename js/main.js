@@ -77,7 +77,7 @@ function flash(message, error = false) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 4200);
 }
 function getManuscript() {
-  return { articleType: $('article-type').value, subject: $('subject').value, title: $('title').value, abstract: $('abstract').value, keywords: $('keywords').value, confirmed: [...confirmationSet] };
+  return { manuscriptLanguage: $('manuscript-language').value || 'en', articleType: $('article-type').value, subject: $('subject').value, title: $('title').value, abstract: $('abstract').value, keywords: $('keywords').value, confirmed: [...confirmationSet] };
 }
 function setLink(id, url) {
   const a = $(id); const safe = urlSafe(url); a.hidden = !safe;
@@ -125,6 +125,7 @@ function updateProgress(id, passed, total, percentage) {
 }
 function update() {
   const result = evaluate(getManuscript(), config);
+  $('validation-note').hidden = result.manuscriptLanguage !== 'ku-Arab';
   $('hero-count').textContent = result.passed;
   $('hero-total').textContent = result.total;
   $('hero-status').textContent = label(result.passed === result.total ? 'statusReady' : 'statusPending');
@@ -281,7 +282,7 @@ function renderReportHtml(data) {
     ...r.confirmations.map(c=>li(journalText(lang, 'confirmation', c.sourceDescription ?? c.description, data.journalTranslations),L(c.pass ? 'confirmed' : 'unconfirmed'))) ].join('');
   const file = data.fileInspection;
   const fileHtml = file ? `<h2>${E(L('fileInspection'))}</h2><p><bdi>${E(file.filename)}</bdi> — ${E(L('fileReportSummary',{words:file.words,dois:file.dois.length}))}</p><p>${E(L('headingNote'))}</p>${parsingNotes(file,L).map(text=>`<p>${E(text)}</p>`).join('')}` : `<p>${E(L('notInspected'))}</p>`;
-  return `<!doctype html><html lang="${lang}" dir="${rtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="UTF-8"><title>${E(L('reportTitle'))} — ${E(journalText(lang, 'name', data.journal, data.journalTranslations))}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px;overflow-wrap:anywhere}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold}.muted{color:#546579}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#91591f}@media print{body{margin:20px auto}}</style></head><body><h1><bdi>${E(journalText(lang, 'name', data.journal, data.journalTranslations))}</bdi> — ${E(L('reportTitle'))}</h1><p class="muted">${E(L('generated'))}: ${E(new Date(data.generatedAt).toLocaleString(lang))} · Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} ${E(L('checkComplete'))} (${r.percentage}%)</strong></p><h2>${E(L('manuscript'))}</h2><p><strong>${E(L('title'))}:</strong> <bdi>${E(m.title || L('notEntered'))}</bdi></p><p><strong>${E(L('articleType'))}:</strong> <bdi>${E(journalText(lang, 'article', m.articleType, data.journalTranslations) || L('notSelected'))}</bdi> · <strong>${E(L('subject'))}:</strong> <bdi>${E(journalText(lang, 'subject', m.subject, data.journalTranslations) || L('notSelected'))}</bdi></p><p><strong>${E(L('abstract'))}:</strong> ${r.words.abstract} ${E(L('words'))} · <strong>${E(L('keywords'))}:</strong> <bdi>${E(m.keywords || L('notEntered'))}</bdi></p><h2>${E(L('checklist'))}</h2><table>${list}</table>${fileHtml}<h2>${E(L('important'))}</h2><p class="note">${E(L('advisoryReport'))} ${E(L('reportGuidance'))}</p><p class="muted">${E(L('journalContentNote'))}</p></body></html>`;
+  return `<!doctype html><html lang="${lang}" dir="${rtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="UTF-8"><title>${E(L('reportTitle'))} — ${E(journalText(lang, 'name', data.journal, data.journalTranslations))}</title><style>body{max-width:760px;margin:45px auto;font:14px/1.6 Arial,sans-serif;color:#182d42;padding:0 25px;overflow-wrap:anywhere}h1{font-size:25px}h2{font-size:18px;margin-top:28px}table{border-collapse:collapse;width:100%}td{padding:9px;border-bottom:1px solid #dce5eb;vertical-align:top}td:last-child{font-weight:bold}.muted{color:#546579}.badge{background:#edf5f2;padding:10px 12px;border-radius:5px}.note{color:#91591f}@media print{body{margin:20px auto}}</style></head><body><h1><bdi>${E(journalText(lang, 'name', data.journal, data.journalTranslations))}</bdi> — ${E(L('reportTitle'))}</h1><p class="muted">${E(L('generated'))}: ${E(new Date(data.generatedAt).toLocaleString(lang))} · Open Journal Checker (Apache-2.0).</p><p class="badge"><strong>${r.passed}/${r.total} ${E(L('checkComplete'))} (${r.percentage}%)</strong></p><h2>${E(L('manuscript'))}</h2><p><strong>${E(L('manuscriptLanguage'))}:</strong> ${E(L({en:'validationEnglish',ar:'validationArabic',tr:'validationTurkish',ku:'validationKurdishLatin','ku-Arab':'validationKurdishArabic'}[r.manuscriptLanguage || 'en']))}</p>${r.manuscriptLanguage === 'ku-Arab' ? `<p>${E(L('validationOrderNote'))}</p>` : ''}<p><strong>${E(L('title'))}:</strong> <bdi>${E(m.title || L('notEntered'))}</bdi></p><p><strong>${E(L('articleType'))}:</strong> <bdi>${E(journalText(lang, 'article', m.articleType, data.journalTranslations) || L('notSelected'))}</bdi> · <strong>${E(L('subject'))}:</strong> <bdi>${E(journalText(lang, 'subject', m.subject, data.journalTranslations) || L('notSelected'))}</bdi></p><p><strong>${E(L('abstract'))}:</strong> ${r.words.abstract} ${E(L('words'))} · <strong>${E(L('keywords'))}:</strong> <bdi>${E(m.keywords || L('notEntered'))}</bdi></p><h2>${E(L('checklist'))}</h2><table>${list}</table>${fileHtml}<h2>${E(L('important'))}</h2><p class="note">${E(L('advisoryReport'))} ${E(L('reportGuidance'))}</p><p class="muted">${E(L('journalContentNote'))}</p></body></html>`;
 }
 
 function captureTranslations() {
@@ -354,12 +355,13 @@ function clearEntries() {
   invalidateFile();
   ['title','abstract','keywords'].forEach(id=>{ $(id).value=''; });
   ['article-type','subject'].forEach(id=>{ $(id).value=''; });
+  $('manuscript-language').value = 'en';
   $('manuscript-file').value = ''; confirmationSet.clear(); renderConfirmations();
   fileSummary=null;fileDescription=null;checkedDoi=null;$('file-info').className='file-empty';$('file-info').textContent=label('fileIdle');$('doi-zone').hidden=true; update();flash(label('cleared'));
 }
 function attach() {
   ['title','abstract','keywords'].forEach(id=> $(id).addEventListener('input',update));
-  ['article-type','subject'].forEach(id=>$(id).addEventListener('change',update));
+  ['article-type','subject','manuscript-language'].forEach(id=>$(id).addEventListener('change',update));
   $('language').addEventListener('change',e=>updateLanguage(e.target.value));
   $('manuscript-file').addEventListener('change',onUpload);
   $('verify-doi').addEventListener('click',verifyDoi);

@@ -100,7 +100,7 @@ The settings interface is not an authentication or authorization system; any vis
 1. Nonempty title at or below maximum word count.
 2. Abstract within journal-defined word-count range.
 3. Required number of unique keywords separated by Latin (;), Arabic (؛) or fullwidth (；) semicolons.
-4. Alphabetical keyword order.
+4. Alphabetical keyword order using the selected manuscript language.
 5. At least one configured subject phrase appears in title, abstract or keywords.
 6. Each selected author confirmation counts as one additional check.
 
@@ -174,3 +174,13 @@ Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Academic user
 File issues and pull requests in the GitHub repository after publishing. Please do not submit unpublished manuscripts, reviewer identities, or API keys in bug reports.
 
 The demo’s journal website, author-guidelines and submission links lead to MWSJ. Its displayed rules remain generic examples, not a synchronized MWSJ policy preset. Configure the rules and links for the intended journal; the journal’s published guidelines take precedence. Old saved demo configurations migrate only the two exact example.org placeholders. Custom journal links and deliberately empty links remain unchanged.
+
+## Manuscript language and subject matching
+
+Choose **Manuscript language** in the metadata section. It controls keyword ordering, language-specific case comparisons and subject comparison; the display-language selector only translates the interface. Changing display language preserves the manuscript choice, score and author confirmations. The manuscript language defaults to English, remains in memory for this session and resets to English with Clear entries. Reports record the selected manuscript language and the browser’s resolved keyword collation locale.
+
+English, Arabic, Turkish and Latin-script Kurdish use explicit browser Intl collations, rather than the computer’s default locale. Arabic-script Kurdish uses **approximate Arabic ordering**, labelled in the form and report; native Badini alphabetization still needs human review. Mixed-language keyword lists and journal-specific sorting rules need editorial judgment. Unicode/CLDR versions in browsers may differ. See [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator) and the [CLDR Kurdish collation definition](https://github.com/unicode-org/cldr/blob/main/common/collation/ku.xml), which tailors Northern Kurdish Latin letters.
+
+Subject matching normalizes a comparison copy: Unicode compatibility forms, repeated whitespace and line breaks, Arabic vocalization and elongation. Meaningful Latin/Kurdish accents stay distinct. Marks and joining characters are part of word boundaries, preventing matches inside larger words. A phrase must appear in one metadata field or one keyword; it cannot be assembled across fields. Original manuscript text and configured matched terms remain unchanged in reports. This is literal keyword overlap, not translation, stemming, semantic topic inference or editorial scope approval.
+
+Newly entered subject terms retain their original case so Turkish dotted/dotless I can be compared correctly. Re-enter Turkish terms whose spelling was altered in an older saved configuration; lost capitalization cannot be recovered automatically.

@@ -161,3 +161,47 @@ test('Only shipped demo navigation placeholders migrate; custom and deliberately
  const empty=normalizeConfig({guidelinesUrl:'',submissionUrl:''});assert.equal(empty.guidelinesUrl,'');assert.equal(empty.submissionUrl,'');
  const hosted=JSON.parse(await (await import('node:fs/promises')).readFile(new URL('../journal-settings.json',import.meta.url),'utf8'));assert.equal(hosted.guidelinesUrl,DEFAULT_CONFIG.guidelinesUrl);assert.equal(hosted.submissionUrl,DEFAULT_CONFIG.submissionUrl);
 });
+
+
+test('Keyword ordering uses explicit manuscript language, including distinct Turkish and Kurdish letters',()=>{
+ assert.equal(keywordsAlphabetical(['ırmak','izmir'],'tr'),true);assert.equal(keywordsAlphabetical(['ırmak','izmir'],'en'),false);
+ assert.equal(keywordsAlphabetical(['süt','şeker'],'tr'),true);assert.equal(keywordsAlphabetical(['şeker','süt'],'tr'),false);
+ assert.equal(keywordsAlphabetical(['cizre','çay'],'ku'),true);assert.equal(keywordsAlphabetical(['çay','cizre'],'ku'),false);
+ assert.equal(keywordsAlphabetical(['بحث','بيانات','تعليم'],'ar'),true);
+ assert.equal(keywordsAlphabetical(['Data','Ethics'],'invalid'),true);
+ assert.equal(evaluate({...good,manuscriptLanguage:'ku-Arab'},config).keywordLocale,'ar');
+});
+
+test('Turkish case comparisons preserve configured term spelling and apply manuscript-specific casing',()=>{
+ const rules=normalizeConfig({subjects:[{name:'Light',terms:['IŞIK','İZMİR']}]});
+ assert.deepEqual(rules.subjects[0].terms,['IŞIK','İZMİR']);
+ assert.equal(scopeMatch('ışık',rules.subjects[0],'tr').matched,true);
+ assert.equal(scopeMatch('izmir',rules.subjects[0],'tr').matched,true);
+ assert.equal(scopeMatch('ışık',rules.subjects[0],'en').matched,false);
+ assert.equal(evaluate({...good,manuscriptLanguage:'tr',keywords:'IŞIK; ışık; veri'},rules).checks[2].pass,false);
+ assert.equal(evaluate({...good,manuscriptLanguage:'tr',keywords:'IŞIK; işik; veri'},rules).checks[2].pass,true);
+});
+
+test('Subject matching tolerates equivalent spelling, vocalization and extraction whitespace without editing matched terms',()=>{
+ for(const [text,term] of [['re\u0301sume\u0301','résumé'],['machine\nlearning','machine learning'],['machine  learning','machine\tlearning'],['بَيَانَات','بيانات'],['ﺑﻴﺎﻧﺎﺕ','بيانات']]){
+  const result=scopeMatch(text,{terms:[term]});assert.equal(result.matched,true,JSON.stringify({text,term}));assert.deepEqual(result.matches,[term]);
+ }
+ assert.equal(scopeMatch('resume',{terms:['résumé']}).matched,false);
+ assert.equal(scopeMatch('cay',{terms:['çay']},'tr').matched,false);
+ assert.equal(scopeMatch('پوختە',{terms:['پوختە']},'ku-Arab').matched,true);
+});
+
+test('Subject term boundaries include combining marks and joiners, and terms are literal',()=>{
+ for(const text of ['counterdata','database','data\u0338base','data\u200cbase','data\u200dbase'])assert.equal(scopeMatch(text,{terms:['data']}).matched,false,text);
+ assert.equal(scopeMatch('(data), methods',{terms:['data']}).matched,true);
+ assert.equal(scopeMatch('Use c++ or a.b as literal terms',{terms:['c++','a.b']}).matches.length,2);
+ assert.equal(scopeMatch('axb',{terms:['a.b']}).matched,false);
+ assert.equal(scopeMatch('anything',{terms:['   ']}).matched,false);
+});
+
+
+test('Subject phrases cannot span separate metadata fields or separate keywords',()=>{
+ const rules=normalizeConfig({subjects:[{name:'AI',terms:['machine learning']}]});
+ for(const parts of [{title:'machine',abstract:'learning'},{keywords:'machine; learning'}])assert.equal(evaluate({...parts,subject:'AI'},rules).scope.matched,false);
+ const result=evaluate({title:'machine learning',abstract:'machine learning',subject:'AI'},rules);assert.deepEqual(result.scope,{matched:true,matches:['machine learning']});
+});

@@ -7,36 +7,48 @@ export function parseKeywords(text = '') {
   // Accept equivalent semicolon keys without rewriting author-entered terms.
   return String(text).split(/[;؛；]/u).map(x => x.trim()).filter(Boolean);
 }
-export function keywordsAlphabetical(keywords) {
+const validationLanguages = ['en','ar','tr','ku','ku-Arab'];
+const manuscriptLanguage = value => validationLanguages.includes(value) ? value : 'en';
+const collationLocale = language => manuscriptLanguage(language) === 'ku-Arab' ? 'ar' : manuscriptLanguage(language);
+const keywordKey = (text, locale) => String(text).normalize('NFC').toLocaleLowerCase(locale).normalize('NFC');
+export function keywordsAlphabetical(keywords, language = 'en') {
   if (!keywords.length) return false;
-  return keywords.every((word, i) => i === 0 || keywords[i - 1].localeCompare(word, undefined, { sensitivity: 'base' }) <= 0);
+  const collator = new Intl.Collator(collationLocale(language), {usage:'sort', sensitivity:'base'});
+  return keywords.every((word, i) => i === 0 || collator.compare(keywords[i - 1], word) <= 0);
 }
-function containsTerm(text, term) {
-  // Compare phrases without matching substrings inside unrelated words.
-  const value = term.toLocaleLowerCase();
+function scopeKey(value, locale) {
+  // Normalize only the comparison copy. Keep meaningful Latin/Kurdish accents;
+  // ignore Arabic vocalization/tatweel and collapse extraction whitespace.
+  return String(value).normalize('NFKC').toLocaleLowerCase(locale).normalize('NFC')
+    .replace(/[\u064b-\u0652\u0670\u0640]/gu, '').replace(/\s+/gu, ' ').trim();
+}
+function containsTerm(text, value) {
   if (!value) return false;
   const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  try { return new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}($|[^\\p{L}\\p{N}])`, 'iu').test(text); }
-  catch { return text.includes(value); }
+  return new RegExp(`(^|[^\\p{L}\\p{M}\\p{N}\\u200c\\u200d])${escaped}($|[^\\p{L}\\p{M}\\p{N}\\u200c\\u200d])`, 'u').test(text);
 }
-export function scopeMatch(text, subject) {
-  const input = String(text).toLocaleLowerCase();
-  if (!subject?.terms?.length || !input.trim()) return { matched: false, matches: [] };
-  const matches = subject.terms.filter(term => containsTerm(input, term));
+export function scopeMatch(text, subject, language = 'en') {
+  const locale = collationLocale(language), input = scopeKey(text, locale);
+  if (!subject?.terms?.length || !input) return { matched: false, matches: [] };
+  const matches = subject.terms.filter(term => containsTerm(input, scopeKey(term, locale)));
   return { matched: matches.length > 0, matches };
 }
 export function evaluate(manuscript, config) {
+  const language = manuscriptLanguage(manuscript.manuscriptLanguage), locale = collationLocale(language);
   const title = String(manuscript.title ?? '').trim();
   const abstract = String(manuscript.abstract ?? '').trim();
   const keywords = parseKeywords(manuscript.keywords);
   const words = { title: wordCount(title), abstract: wordCount(abstract) };
   const subject = config.subjects.find(x => x.name === manuscript.subject);
-  const scope = scopeMatch([title, abstract, keywords.join(' ')].join(' '), subject);
+  // A phrase must occur inside one field/keyword, never across their boundaries.
+  const matched = new Set([title, abstract, ...keywords].flatMap(text => scopeMatch(text, subject, language).matches));
+  const matches = subject?.terms.filter(term => matched.has(term)) || [];
+  const scope = {matched:matches.length > 0, matches};
   const checks = [
     { id: 'title', pass: words.title > 0 && words.title <= config.titleMaxWords, values: `${words.title}/${config.titleMaxWords} words` },
     { id: 'abstract', pass: words.abstract >= config.abstractMinWords && words.abstract <= config.abstractMaxWords, values: `${words.abstract} words · ${config.abstractMinWords}–${config.abstractMaxWords} target` },
-    { id: 'keywords', pass: keywords.length >= config.keywordsMin && keywords.length <= config.keywordsMax && new Set(keywords.map(x => x.normalize('NFC').toLocaleLowerCase().normalize('NFC'))).size === keywords.length, values: `${keywords.length} terms · ${config.keywordsMin}–${config.keywordsMax} required` },
-    { id: 'alphabetical', pass: keywordsAlphabetical(keywords), values: 'Semicolon-separated, alphabetically ordered' },
+    { id: 'keywords', pass: keywords.length >= config.keywordsMin && keywords.length <= config.keywordsMax && new Set(keywords.map(x => keywordKey(x, locale))).size === keywords.length, values: `${keywords.length} terms · ${config.keywordsMin}–${config.keywordsMax} required` },
+    { id: 'alphabetical', pass: keywordsAlphabetical(keywords, language), values: 'Semicolon-separated, alphabetically ordered' },
     { id: 'scope', pass: scope.matched, values: scope.matches.length ? `Matched: ${scope.matches.join(', ')}` : 'Heuristic keyword overlap only' }
   ];
   const confirmations = config.confirmations.map((description, i) => ({
@@ -44,7 +56,7 @@ export function evaluate(manuscript, config) {
   }));
   const all = [...checks, ...confirmations];
   const passed = all.filter(x => x.pass).length;
-  return { checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
+  return { manuscriptLanguage:language, keywordLocale:new Intl.Collator(locale).resolvedOptions().locale, checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
 }
 export function extractDois(text = '') {
   const input = String(text);
