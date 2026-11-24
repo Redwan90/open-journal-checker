@@ -1,4 +1,3 @@
-// Application messages. Default journal translations are in journal-i18n.js.
 export const messages = {
   "en": {
     "brandSubtitle": "CHECKER / OPEN SOURCE",
@@ -94,7 +93,16 @@ export const messages = {
     "ocrReport": "OCR inspection: {count} of {total} pages; language model {language}.",
     "ocrAccuracy": "OCR may misread text, headings and DOIs. Proofread it; OCR does not change the readiness score.",
     "ocrPartial": "Only the first {count} of {total} pages were inspected with OCR. Counts and detected headings describe that sample, not the full manuscript.",
-    "ocrNoText": "OCR did not find readable text. Try a clearer scan or enter manuscript metadata manually."
+    "ocrNoText": "OCR did not find readable text. Try a clearer scan or enter manuscript metadata manually.",
+    "manuscriptLanguage": "Manuscript language",
+    "manuscriptLanguageHelp": "Used for keyword order, case comparisons and subject matching. Changing display language keeps this choice.",
+    "validationEnglish": "English",
+    "validationArabic": "Arabic",
+    "validationTurkish": "Turkish",
+    "validationKurdishLatin": "Kurdish (Latin script)",
+    "validationKurdishArabic": "Kurdish (Arabic script, approximate order)",
+    "validationOrderNote": "Arabic-script Kurdish uses approximate Arabic ordering. Follow your journal’s alphabetization rules.",
+    "validationUnavailable": "This browser cannot check alphabetical order for this manuscript language. The order check remains pending. Use a browser that supports it or ask your journal to review the order."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -190,7 +198,16 @@ export const messages = {
     "ocrReport": "فحص ضوئي: {count} من {total} صفحات؛ نموذج اللغة {language}.",
     "ocrAccuracy": "قد يخطئ التعرف الضوئي في النص والعناوين وDOI. راجعها؛ لا يغير التعرف الضوئي درجة الجاهزية.",
     "ocrPartial": "فُحصت أول {count} من {total} صفحات فقط. تصف الأعداد والعناوين المكتشفة هذه العينة، لا المخطوطة كاملة.",
-    "ocrNoText": "لم يُعثر على نص مقروء. جرّب مسحاً أوضح أو أدخل بيانات المخطوطة يدوياً."
+    "ocrNoText": "لم يُعثر على نص مقروء. جرّب مسحاً أوضح أو أدخل بيانات المخطوطة يدوياً.",
+    "manuscriptLanguage": "لغة المخطوطة",
+    "manuscriptLanguageHelp": "تُستخدم لترتيب الكلمات المفتاحية ومقارنة حالة الأحرف ومطابقة المجال. تغيير لغة الواجهة لا يغيّر هذا الاختيار.",
+    "validationEnglish": "الإنجليزية",
+    "validationArabic": "العربية",
+    "validationTurkish": "التركية",
+    "validationKurdishLatin": "الكردية (الحرف اللاتيني)",
+    "validationKurdishArabic": "الكردية (الحرف العربي، ترتيب تقريبي)",
+    "validationOrderNote": "تستخدم الكردية بالحرف العربي ترتيباً عربياً تقريبياً. اتبع قواعد الترتيب الأبجدي لمجلتك.",
+    "validationUnavailable": "لا يدعم هذا المتصفح فحص الترتيب الأبجدي للغة المخطوطة المختارة. يبقى فحص الترتيب غير مكتمل. استخدم متصفحاً يدعمها أو اطلب من المجلة مراجعة الترتيب."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -286,7 +303,16 @@ export const messages = {
     "ocrReport": "پشکنینا دەقی: {count} ژ {total} لاپەران؛ مۆدێلا زمانێ {language}.",
     "ocrAccuracy": "ناسینا دەقی دکاریت د دەق، سەردێڕ و DOI دا هەڵە بکەت. پێداچوون بکە؛ ئەڤ پشکنینە نمرەیا ئامادەبوونێ ناگۆهۆڕیت.",
     "ocrPartial": "تەنێ {count} ژ {total} لاپەرێن دەستپێکێ هاتنە پشکنین. هژمار و سەردێڕێن دیتی بۆ ڤێ نموونەیێ نە، نە بۆ هەمی دەستنڤیسێ.",
-    "ocrNoText": "دەقەکێ خوێندنی نەهاتە دیتن. سکانەکا ڕوونتر تاقی بکە یان زانیاریان ب دەستی بنڤیسە."
+    "ocrNoText": "دەقەکێ خوێندنی نەهاتە دیتن. سکانەکا ڕوونتر تاقی بکە یان زانیاریان ب دەستی بنڤیسە.",
+    "manuscriptLanguage": "زمانێ ڤەکۆلینێ",
+    "manuscriptLanguageHelp": "بۆ رێزبەندیا پەیڤێن سەرەکی، بەراوردکرنا پیتان و گونجانا بوارێ دهێتە بکارئینان. گوهارتنا زمانێ رووکارێ ڤێ هەلبژارتنێ ناگوهۆریت.",
+    "validationEnglish": "ئینگلیزی",
+    "validationArabic": "عەرەبی",
+    "validationTurkish": "تورکی",
+    "validationKurdishLatin": "کوردی (ئەلفوبێیا لاتینی)",
+    "validationKurdishArabic": "کوردی (ئەلفوبێیا عەرەبی، رێزبەندیا نزیکەیی)",
+    "validationOrderNote": "کوردیا ب ئەلفوبێیا عەرەبی رێزبەندیەکا عەرەبی یا نزیکەیی بکار دئینیت. رێنمایێن گۆڤارێ بۆ رێزبەندیا ئەلفوبێیی بشوپینە.",
+    "validationUnavailable": "ئەڤ وێبگەڕە نکاریت رێزبەندیا ئەلفوبێیی بۆ زمانێ ڤەکۆلینێ یێ هەلبژارتی بپشکنیت. ئەڤ پشکنینە هێشتا نەهاتیە تەمامکرن. وێبگەڕەکێ پشتەڤان بکار بینە یان ژ گۆڤارێ بخوازە رێزبەندیێ بپشکنیت."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -382,6 +408,15 @@ export const messages = {
     "ocrReport": "OCR incelemesi: {total} sayfadan {count}; dil modeli {language}.",
     "ocrAccuracy": "OCR metni, başlıkları ve DOI bilgilerini yanlış okuyabilir. Sonuçları kontrol edin; OCR hazırlık puanını değiştirmez.",
     "ocrPartial": "Yalnızca ilk {count} sayfa incelendi; toplam {total} sayfa var. Sayılar ve başlıklar tüm makaleyi değil bu örneği tanımlar.",
-    "ocrNoText": "OCR okunabilir metin bulamadı. Daha net bir tarama deneyin veya makale bilgilerini elle girin."
+    "ocrNoText": "OCR okunabilir metin bulamadı. Daha net bir tarama deneyin veya makale bilgilerini elle girin.",
+    "manuscriptLanguage": "Makale dili",
+    "manuscriptLanguageHelp": "Anahtar kelime sıralaması, büyük/küçük harf karşılaştırması ve konu eşleştirmesi için kullanılır. Arayüz dilini değiştirmek bu seçimi değiştirmez.",
+    "validationEnglish": "İngilizce",
+    "validationArabic": "Arapça",
+    "validationTurkish": "Türkçe",
+    "validationKurdishLatin": "Kürtçe (Latin alfabesi)",
+    "validationKurdishArabic": "Kürtçe (Arap alfabesi, yaklaşık sıralama)",
+    "validationOrderNote": "Arap alfabesiyle Kürtçe için yaklaşık Arapça sıralama kullanılır. Derginizin alfabetik sıralama kurallarını izleyin.",
+    "validationUnavailable": "Bu tarayıcı seçilen makale dilinin alfabetik sırasını denetleyemiyor. Sıralama kontrolü tamamlanmamış kalır. Bu dili destekleyen bir tarayıcı kullanın veya derginizden sıralamayı incelemesini isteyin."
   }
 };

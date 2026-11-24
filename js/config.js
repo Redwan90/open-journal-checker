@@ -71,7 +71,7 @@ export function normalizeConfig(input = {}) {
   cfg.subjects = (Array.isArray(input.subjects) ? input.subjects : DEFAULT_CONFIG.subjects).slice(0, MAX.items)
     .filter(s => s && typeof s === 'object')
     .map(s => ({ name: str(s.name, '', 80), terms: (Array.isArray(s.terms) ? s.terms : [])
-      .map(t => str(t, '', 60).toLocaleLowerCase()).filter(Boolean).slice(0, 40) }))
+      .map(t => str(t, '', 60)).filter(Boolean).slice(0, 40) }))
     .filter(s => s.name && s.terms.length);
   if (!cfg.subjects.length) cfg.subjects = structuredClone(DEFAULT_CONFIG.subjects);
   cfg.confirmations = (Array.isArray(input.confirmations) ? input.confirmations : DEFAULT_CONFIG.confirmations)
