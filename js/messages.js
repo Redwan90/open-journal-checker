@@ -101,7 +101,8 @@ export const messages = {
     "validationTurkish": "Turkish",
     "validationKurdishLatin": "Kurdish (Latin script)",
     "validationKurdishArabic": "Kurdish (Arabic script, approximate order)",
-    "validationOrderNote": "Arabic-script Kurdish uses approximate Arabic ordering. Follow your journal’s alphabetization rules."
+    "validationOrderNote": "Arabic-script Kurdish uses approximate Arabic ordering. Follow your journal’s alphabetization rules.",
+    "validationUnavailable": "This browser cannot check alphabetical order for this manuscript language. The order check remains pending. Use a browser that supports it or ask your journal to review the order."
   },
   "ar": {
     "brandSubtitle": "فاحص / مفتوح المصدر",
@@ -205,7 +206,8 @@ export const messages = {
     "validationTurkish": "التركية",
     "validationKurdishLatin": "الكردية (الحرف اللاتيني)",
     "validationKurdishArabic": "الكردية (الحرف العربي، ترتيب تقريبي)",
-    "validationOrderNote": "تستخدم الكردية بالحرف العربي ترتيباً عربياً تقريبياً. اتبع قواعد الترتيب الأبجدي لمجلتك."
+    "validationOrderNote": "تستخدم الكردية بالحرف العربي ترتيباً عربياً تقريبياً. اتبع قواعد الترتيب الأبجدي لمجلتك.",
+    "validationUnavailable": "لا يدعم هذا المتصفح فحص الترتيب الأبجدي للغة المخطوطة المختارة. يبقى فحص الترتيب غير مكتمل. استخدم متصفحاً يدعمها أو اطلب من المجلة مراجعة الترتيب."
   },
   "ku": {
     "brandSubtitle": "پشکنەر / کۆدا ڤەکیرتی",
@@ -309,7 +311,8 @@ export const messages = {
     "validationTurkish": "تورکی",
     "validationKurdishLatin": "کوردی (ئەلفوبێیا لاتینی)",
     "validationKurdishArabic": "کوردی (ئەلفوبێیا عەرەبی، رێزبەندیا نزیکەیی)",
-    "validationOrderNote": "کوردیا ب ئەلفوبێیا عەرەبی رێزبەندیەکا عەرەبی یا نزیکەیی بکار دئینیت. رێنمایێن گۆڤارێ بۆ رێزبەندیا ئەلفوبێیی بشوپینە."
+    "validationOrderNote": "کوردیا ب ئەلفوبێیا عەرەبی رێزبەندیەکا عەرەبی یا نزیکەیی بکار دئینیت. رێنمایێن گۆڤارێ بۆ رێزبەندیا ئەلفوبێیی بشوپینە.",
+    "validationUnavailable": "ئەڤ وێبگەڕە نکاریت رێزبەندیا ئەلفوبێیی بۆ زمانێ ڤەکۆلینێ یێ هەلبژارتی بپشکنیت. ئەڤ پشکنینە هێشتا نەهاتیە تەمامکرن. وێبگەڕەکێ پشتەڤان بکار بینە یان ژ گۆڤارێ بخوازە رێزبەندیێ بپشکنیت."
   },
   "tr": {
     "brandSubtitle": "DENETLEYİCİ / AÇIK KAYNAK",
@@ -413,6 +416,7 @@ export const messages = {
     "validationTurkish": "Türkçe",
     "validationKurdishLatin": "Kürtçe (Latin alfabesi)",
     "validationKurdishArabic": "Kürtçe (Arap alfabesi, yaklaşık sıralama)",
-    "validationOrderNote": "Arap alfabesiyle Kürtçe için yaklaşık Arapça sıralama kullanılır. Derginizin alfabetik sıralama kurallarını izleyin."
+    "validationOrderNote": "Arap alfabesiyle Kürtçe için yaklaşık Arapça sıralama kullanılır. Derginizin alfabetik sıralama kurallarını izleyin.",
+    "validationUnavailable": "Bu tarayıcı seçilen makale dilinin alfabetik sırasını denetleyemiyor. Sıralama kontrolü tamamlanmamış kalır. Bu dili destekleyen bir tarayıcı kullanın veya derginizden sıralamayı incelemesini isteyin."
   }
 };

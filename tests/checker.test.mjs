@@ -205,3 +205,9 @@ test('Subject phrases cannot span separate metadata fields or separate keywords'
  for(const parts of [{title:'machine',abstract:'learning'},{keywords:'machine; learning'}])assert.equal(evaluate({...parts,subject:'AI'},rules).scope.matched,false);
  const result=evaluate({title:'machine learning',abstract:'machine learning',subject:'AI'},rules);assert.deepEqual(result.scope,{matched:true,matches:['machine learning']});
 });
+
+
+test('Unavailable collations leave ordering pending instead of silently falling back to the host language',()=>{
+ const supported=Intl.Collator.supportedLocalesOf;Intl.Collator.supportedLocalesOf=()=>[];
+ try {assert.equal(keywordsAlphabetical(['cizre','çay'],'ku'),false);const result=evaluate({...good,manuscriptLanguage:'ku'},config);assert.equal(result.keywordOrderAvailable,false);assert.equal(result.keywordLocale,null);assert.equal(result.checks[3].pass,false);}finally{Intl.Collator.supportedLocalesOf=supported;}
+});

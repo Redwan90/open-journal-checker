@@ -3,7 +3,7 @@
 ## 1.4.0 — 2026-11-24
 
 - Add a translated manuscript-language selector, independent of display language, for explicit keyword collation and case comparisons. Record the choice in reports and reset it with Clear entries.
-- Correct Turkish dotted/dotless-I comparisons and retain newly configured subject-term case. Support Latin-script Kurdish collation; label Arabic-script Kurdish ordering as approximate Arabic ordering in the interface and report.
+- Correct Turkish dotted/dotless-I comparisons and retain newly configured subject-term case. Use Latin-script Kurdish collation when available; leave unavailable ordering pending with a translated warning instead of silently falling back. Label Arabic-script Kurdish ordering as approximate Arabic ordering in the interface and report.
 - Normalize Unicode forms, extraction whitespace and Arabic vocalization for subject comparison, retain meaningful accents and prevent combining marks or joiners from creating false word boundaries.
 - Require subject phrases to occur within one metadata field or keyword, preventing matches assembled across fields. Preserve original text and matched terms.
 - Add regression checks for language-independent interface switching, scores, consent, reports, accessibility names, narrow layouts and multilingual subject matching.

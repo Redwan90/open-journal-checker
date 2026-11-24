@@ -10,10 +10,15 @@ export function parseKeywords(text = '') {
 const validationLanguages = ['en','ar','tr','ku','ku-Arab'];
 const manuscriptLanguage = value => validationLanguages.includes(value) ? value : 'en';
 const collationLocale = language => manuscriptLanguage(language) === 'ku-Arab' ? 'ar' : manuscriptLanguage(language);
+const keywordCollator = language => {
+  const locale = collationLocale(language);
+  return Intl.Collator.supportedLocalesOf([locale]).length ? new Intl.Collator(locale, {usage:'sort', sensitivity:'base'}) : null;
+};
 const keywordKey = (text, locale) => String(text).normalize('NFC').toLocaleLowerCase(locale).normalize('NFC');
 export function keywordsAlphabetical(keywords, language = 'en') {
   if (!keywords.length) return false;
-  const collator = new Intl.Collator(collationLocale(language), {usage:'sort', sensitivity:'base'});
+  const collator = keywordCollator(language);
+  if (!collator) return false; // Never silently score an unsupported language as English.
   return keywords.every((word, i) => i === 0 || collator.compare(keywords[i - 1], word) <= 0);
 }
 function scopeKey(value, locale) {
@@ -56,7 +61,8 @@ export function evaluate(manuscript, config) {
   }));
   const all = [...checks, ...confirmations];
   const passed = all.filter(x => x.pass).length;
-  return { manuscriptLanguage:language, keywordLocale:new Intl.Collator(locale).resolvedOptions().locale, checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
+  const collator = keywordCollator(language);
+  return { manuscriptLanguage:language, keywordOrderAvailable:!!collator, keywordLocale:collator?.resolvedOptions().locale || null, checks, confirmations, passed, total: all.length, percentage: Math.round(100 * passed / all.length), words, keywords, scope };
 }
 export function extractDois(text = '') {
   const input = String(text);
