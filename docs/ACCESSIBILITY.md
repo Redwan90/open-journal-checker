@@ -22,7 +22,7 @@ The review follows W3C's guidance on [input relationships and accessible names](
 
 ```sh
 npm ci
-npx playwright install chromium firefox
+npx playwright install chromium firefox chrome msedge
 npm test
 npm run test:browser
 ```

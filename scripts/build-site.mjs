@@ -13,6 +13,8 @@ await mkdir(destination,{recursive:true});
 for(const file of ['index.html','style.css','journal-settings.json','LICENSE','README.md','SECURITY.md','CHANGELOG.md','CITATION.cff','THIRD-PARTY-NOTICES.md']) {
   await cp(resolve(root,file),resolve(destination,file));
 }
+await mkdir(resolve(destination,'licenses'),{recursive:true});
+await cp(resolve(root,'licenses/unicode-LICENSE'),resolve(destination,'licenses/unicode-LICENSE'));
 await mkdir(resolve(destination,'docs'),{recursive:true});
 for(const file of ['OJS-INTEGRATION.md','ACCESSIBILITY.md','OCR.md']) await cp(resolve(root,'docs',file),resolve(destination,'docs',file));
 await cp(resolve(root,'js'),resolve(destination,'js'),{recursive:true});

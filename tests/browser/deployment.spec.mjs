@@ -35,7 +35,7 @@ test('Release build inspects PDF/DOCX with external requests blocked',async({pag
 });
 
 test('Release bundle exposes licenses and excludes repository internals',async({request})=>{
-  for(const path of ['docs/OCR.md','vendor/ocr/licenses/tesseract-LICENSE','vendor/ocr/licenses/core-LICENSE','vendor/ocr/licenses/tessdata-LICENSE','vendor/ocr/licenses/eng-package.json','vendor/ocr/licenses/ara-package.json','vendor/ocr/licenses/tur-package.json','docs/OJS-INTEGRATION.md','docs/ACCESSIBILITY.md','LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
+  for(const path of ['licenses/unicode-LICENSE','docs/OCR.md','vendor/ocr/licenses/tesseract-LICENSE','vendor/ocr/licenses/core-LICENSE','vendor/ocr/licenses/tessdata-LICENSE','vendor/ocr/licenses/eng-package.json','vendor/ocr/licenses/ara-package.json','vendor/ocr/licenses/tur-package.json','docs/OJS-INTEGRATION.md','docs/ACCESSIBILITY.md','LICENSE','vendor/pdfjs/LICENSE','vendor/pdfjs/standard_fonts/LICENSE_FOXIT','vendor/pdfjs/wasm/LICENSE_OPENJPEG']) {
     expect((await request.get('/built/'+path)).status()).toBe(200);
   }
   for(const path of ['.git/config','node_modules/pdfjs-dist/package.json','.github/workflows/ci.yml','tests/server.mjs']) {
