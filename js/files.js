@@ -98,17 +98,22 @@ export async function extractDocx(file) {
   return { text:texts.join('\n'), structureText:body.text, format:'docx', notes, missingNotes, pages:null, partial:missingNotes > 0 };
 }
 
-export async function extractPdf(file) {
+export async function loadPdfTask(file, {signal} = {}) {
   if (file.size > PDF_MAX_BYTES) throw fileError('pdfTooLarge', 'PDF exceeds the 15 MB local-processing limit.');
   const pdfjs = await import(new URL('build/pdf.min.mjs', PDFJS_BASE).href)
     .catch(() => { throw fileError('pdfLibrary', 'PDF text extraction needs access to the PDF.js library. Connect to the internet or paste your abstract manually.'); });
+  if(signal?.aborted)throw signal.reason;
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('build/pdf.worker.min.mjs', PDFJS_BASE).href;
-  const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), useSystemFonts: true,
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if(signal?.aborted)throw signal.reason;
+  const task = pdfjs.getDocument({ data: bytes, useSystemFonts: true,
     cMapUrl:new URL('cmaps/', PDFJS_BASE).href, cMapPacked:true,
     standardFontDataUrl:new URL('standard_fonts/', PDFJS_BASE).href,
     wasmUrl:new URL('wasm/', PDFJS_BASE).href, iccUrl:new URL('iccs/', PDFJS_BASE).href });
-  return readPdfTask(task);
+  return task;
 }
+
+export async function extractPdf(file) { return readPdfTask(await loadPdfTask(file)); }
 
 // PDF.js 6 exposes destroy() on the loading task, not PDFDocumentProxy.
 export async function readPdfTask(task) {

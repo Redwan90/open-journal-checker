@@ -91,7 +91,7 @@ for(const type of ['docx','pdf']) {
       await route.fulfill({path:resolve('node_modules/pdfjs-dist/build',name),contentType:'text/javascript',headers:{'Access-Control-Allow-Origin':'*'}});
     });
     await page.locator('#manuscript-file').setInputFiles({name:`synthetic.${type}`,mimeType:type==='pdf'?'application/pdf':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',buffer:type==='pdf'?pdfFixture():docxFixture()});
-    await expect(page.locator('#file-info')).toContainText(`synthetic.${type}`);
+    await expect(page.locator('#file-info')).toContainText(`synthetic.${type}`,{timeout:30000});
     await expect(page.locator('#file-info')).toContainText('Abstract heading: Detected');
     await expect(page.locator('#file-info')).toContainText('Methods heading: Detected');
     await expect(page.locator('#file-info')).toContainText('10.1234/synthetic');

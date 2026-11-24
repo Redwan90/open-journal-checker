@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 — 2026-11-24
+
+- Add explicitly activated, local scanned-PDF OCR for English, Arabic and Turkish with self-hosted pinned processing assets. Kurdish OCR is deferred after native-script sample recognition failed.
+- Limit OCR to five pages and three minutes, with bounded rendering and cancellation during initialization or recognition. Preserve the previous completed inspection on failure or cancellation.
+- Mark OCR output and partial page coverage in both reports; leave manuscript metadata, declarations, scoring and optional DOI verification under author control.
+- Translate OCR controls and statuses in all four interface languages; document privacy, accuracy and deployment limits.
+
 ## 1.2.2 — 2026-11-23
 
 - Add a translated keyboard skip link to the manuscript form, with correct focus order.

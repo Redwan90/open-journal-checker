@@ -5,7 +5,7 @@ authors:
   - family-names: Shamoun
     given-names: Ridwan
 type: software
-version: 1.2.2
-date-released: 2026-11-23
+version: 1.3.0
+date-released: 2026-11-24
 license: Apache-2.0
 repository-code: https://github.com/Redwan90/open-journal-checker
