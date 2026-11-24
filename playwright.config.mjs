@@ -9,7 +9,7 @@ export default defineConfig({
   use: { baseURL: 'http://127.0.0.1:8765', trace: 'retain-on-failure' },
   projects: [
     {name:'chromium',use:{browserName:'chromium'}}, {name:'firefox',use:{browserName:'firefox'}},
-    ...['chrome','msedge'].map(channel=>({name:channel,testMatch:['**/validation-language.spec.mjs','**/deployment.spec.mjs','**/accessible-navigation.spec.mjs'],use:{browserName:'chromium',channel}}))
+    ...['chrome','msedge'].map(channel=>({name:channel,testMatch:['**/validation-language.spec.mjs','**/deployment.spec.mjs','**/accessible-navigation.spec.mjs','**/ocr.spec.mjs'],use:{browserName:'chromium',channel}}))
   ],
   webServer: { command:'node tests/server.mjs', url:'http://127.0.0.1:8765', reuseExistingServer:false }
 });

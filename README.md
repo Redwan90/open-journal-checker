@@ -53,7 +53,7 @@ npx playwright install chromium firefox chrome msedge
 npm run test:browser
 ```
 
-These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They run the full suite in Chromium and Firefox, plus focused validation, deployed-file inspection and accessible-navigation checks in actual Google Chrome and Microsoft Edge. They cover narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. See the [accessibility check record and remaining human review](docs/ACCESSIBILITY.md). The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
+These tests serve the actual application under `/open-journal-checker/` with its security policy enabled. They run the full suite in Chromium and Firefox, plus focused validation, deployed-file inspection, scanned-PDF OCR and accessible-navigation checks in actual Google Chrome and Microsoft Edge. They cover narrow layouts in all four languages, keyboard controls, automated accessibility checks, scoring, report downloads and declaration resets. Automated checks do not replace screen-reader or native-speaker review. See the [accessibility check record and remaining human review](docs/ACCESSIBILITY.md). The browser command builds a self-hosted distribution and tests that it can inspect files with external requests blocked. Serving a ready-to-deploy ZIP needs no Node.js or package installation.
 
 ## Deploy for a journal
 

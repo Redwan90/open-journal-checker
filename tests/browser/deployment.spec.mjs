@@ -9,9 +9,9 @@ test('Release build inspects PDF/DOCX with external requests blocked',async({pag
   await page.route('**/*',route=>{
     const url=new URL(route.request().url());
     if(url.origin!=='http://127.0.0.1:8765') {
-      // Endpoint security may inject telemetry into Firefox; all external
+      // Endpoint security may inject telemetry into branded browsers and Firefox; all external
       // requests stay blocked, including that instrumentation.
-      if(url.hostname!=='ff.kis.v2.scr.kaspersky-labs.com') external.push(url.origin);
+      if(!url.hostname.endsWith('.kaspersky-labs.com')) external.push(url.origin);
       return route.abort();
     }
     return route.continue();
