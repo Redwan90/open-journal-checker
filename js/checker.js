@@ -1,9 +1,11 @@
 // Pure validation and inspection: no network access and no manuscript storage.
 export function wordCount(text = '') {
-  return (String(text).match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu) || []).length;
+  // Combining vowel/accent marks belong to their letter, not a new word.
+  return (String(text).match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?:[’'-][\p{L}\p{N}][\p{L}\p{M}\p{N}]*)*/gu) || []).length;
 }
 export function parseKeywords(text = '') {
-  return String(text).split(';').map(x => x.trim()).filter(Boolean);
+  // Accept equivalent semicolon keys without rewriting author-entered terms.
+  return String(text).split(/[;؛；]/u).map(x => x.trim()).filter(Boolean);
 }
 export function keywordsAlphabetical(keywords) {
   if (!keywords.length) return false;
@@ -33,7 +35,7 @@ export function evaluate(manuscript, config) {
   const checks = [
     { id: 'title', pass: words.title > 0 && words.title <= config.titleMaxWords, values: `${words.title}/${config.titleMaxWords} words` },
     { id: 'abstract', pass: words.abstract >= config.abstractMinWords && words.abstract <= config.abstractMaxWords, values: `${words.abstract} words · ${config.abstractMinWords}–${config.abstractMaxWords} target` },
-    { id: 'keywords', pass: keywords.length >= config.keywordsMin && keywords.length <= config.keywordsMax && new Set(keywords.map(x => x.toLocaleLowerCase())).size === keywords.length, values: `${keywords.length} terms · ${config.keywordsMin}–${config.keywordsMax} required` },
+    { id: 'keywords', pass: keywords.length >= config.keywordsMin && keywords.length <= config.keywordsMax && new Set(keywords.map(x => x.normalize('NFC').toLocaleLowerCase().normalize('NFC'))).size === keywords.length, values: `${keywords.length} terms · ${config.keywordsMin}–${config.keywordsMax} required` },
     { id: 'alphabetical', pass: keywordsAlphabetical(keywords), values: 'Semicolon-separated, alphabetically ordered' },
     { id: 'scope', pass: scope.matched, values: scope.matches.length ? `Matched: ${scope.matches.join(', ')}` : 'Heuristic keyword overlap only' }
   ];

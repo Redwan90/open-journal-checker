@@ -1,0 +1,20 @@
+import {test,expect} from '@playwright/test';
+import {readFile} from 'node:fs/promises';
+import {docxFixture} from './fixtures.mjs';
+for(const locale of ['en','ar','ku','tr'])test(`Unicode counts, separators and original report text agree in ${locale}`,async({page})=>{
+ await page.goto('/built/');await page.locator('#language').selectOption(locale);
+ const title='مُلَخَّص عِلْمِيّ',abstract=Array(150).fill('عِلْمِيّ').join(' ');
+ await page.locator('#title').fill(title);await page.locator('#abstract').fill(abstract);
+ await expect(page.locator('#title-count')).toHaveText('2');await expect(page.locator('#abstract-count')).toHaveText('150');
+ await page.locator('#keywords').fill('بحث؛ بيانات； تعليم');await expect(page.locator('#keywords-count')).toHaveText('3');
+ await expect(page.locator('#checks .check-row').nth(2)).toHaveClass(/is-good/);
+ const keywords='café; cafe\u0301; data';await page.locator('#keywords').fill(keywords);
+ await expect(page.locator('#checks .check-row').nth(2)).not.toHaveClass(/is-good/);
+ const document=`<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${title}</w:t></w:r></w:p></w:body></w:document>`;
+ await page.locator('#manuscript-file').setInputFiles({name:'unicode.docx',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',buffer:docxFixture({document})});
+ await expect(page.locator('#file-info')).toContainText('unicode.docx');
+ const download=page.waitForEvent('download');await page.locator('#download-json').click();const report=JSON.parse(await readFile(await (await download).path(),'utf8'));
+ expect(report.manuscript.title).toBe(title);expect(report.manuscript.keywords).toBe(keywords);expect(report.evaluation.words).toEqual({title:2,abstract:150});
+ expect(report.evaluation.checks[2].pass).toBe(false);expect(report.fileInspection.words).toBe(2);expect(report.fileInspection.preview).toContain(title);
+ const htmlDownload=page.waitForEvent('download');await page.locator('#download-report').click();const html=await readFile(await (await htmlDownload).path(),'utf8');expect(html).toContain(title);expect(html).toContain('cafe\u0301');
+});

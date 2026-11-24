@@ -123,3 +123,31 @@ test('Prose mentions, label prefixes and notes cannot manufacture body headings'
  assert.equal(inspectText('Abstract').headings.abstract,true);
  assert.equal(inspectText('Keywords').headings.keywords,true);
 });
+
+
+test('Combining vowel and accent marks stay attached to words without counting standalone marks',()=>{
+ for(const text of ['résumé','re\u0301sume\u0301','مُلَخَّص','پەیڤێن'])assert.equal(wordCount(text),1,text);
+ assert.equal(wordCount('مُلَخَّص عِلْمِيّ'),2);
+ assert.equal(wordCount('re\u0301sume\u0301-based author’s cafe\u0301'),3);
+ assert.equal(wordCount('\u0301 \u064e'),0);
+ assert.equal(inspectText('مُلَخَّص عِلْمِيّ').words,2);
+ const rules=normalizeConfig({titleMaxWords:5,abstractMinWords:2,abstractMaxWords:2});
+ const result=evaluate({title:'مُلَخَّص',abstract:'مُلَخَّص عِلْمِيّ'},rules);
+ assert.deepEqual(result.words,{title:1,abstract:2});assert.equal(result.checks[1].pass,true);
+});
+
+test('Keyword separators accept Arabic and fullwidth semicolons while preserving author spelling',()=>{
+ assert.deepEqual(parseKeywords('بيانات؛ تعليم； علوم; بحث'),['بيانات','تعليم','علوم','بحث']);
+ assert.deepEqual(parseKeywords(' ;؛； '),[]);
+ assert.deepEqual(parseKeywords('Research, development; Data'),['Research, development','Data']);
+ const result=evaluate({...good,keywords:'بحث؛ بيانات؛ تعليم'},config);
+ assert.equal(result.keywords.length,3);assert.equal(result.checks[2].pass,true);
+});
+
+test('Canonically equivalent keyword spellings cannot bypass duplicate checks',()=>{
+ for(const keywords of ['café; cafe\u0301; data','RE\u0301SUME\u0301; résumé; data']){
+  const result=evaluate({...good,keywords},config);assert.equal(result.checks[2].pass,false);
+  assert.deepEqual(result.keywords,parseKeywords(keywords));
+ }
+ assert.equal(evaluate({...good,keywords:'cafe; café; data'},config).checks[2].pass,true);
+});
