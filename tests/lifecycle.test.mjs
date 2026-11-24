@@ -13,7 +13,7 @@ function app(readManuscriptFile, fetch = () => {}, timers = {}) {
     .replace(/^import .*;\r?\n/gm, '').replace("attach(); updateLanguage('en'); loadHostedConfig();", '');
   const context = vm.createContext({document:{getElementById:node}, localStorage:{getItem:()=>null}, normalizeConfig:()=>({}),
     readManuscriptFile, inspectText, isDoi:()=>true, t:(_,key)=>key, AbortController, setTimeout:()=>0, clearTimeout(){}, fetch, ...timers});
-  vm.runInContext(source + '\nrenderFile = () => {}; renderConfirmations = () => {}; update = () => {};', context);
+  vm.runInContext(source + '\nrenderOcrControls = () => {}; renderFile = () => {}; renderConfirmations = () => {}; update = () => {};', context);
   return {node, run:code=>vm.runInContext(code, context)};
 }
 
@@ -97,4 +97,20 @@ test('PDF loading task is destroyed when document loading fails',async()=>{
   let destroyed=false;
   await assert.rejects(readPdfTask({promise:Promise.reject(new Error('Invalid PDF')),destroy:async()=>{destroyed=true;}}),/Invalid PDF/);
   assert.equal(destroyed,true);
+});
+
+test('Clear aborts OCR and ignores a late OCR completion',async()=>{
+ const pending=deferred();let signal;
+ const a=app(()=>{},()=>{},{recognizePdf:(_file,_language,options)=>{signal=options.signal;return pending.promise;}});
+ a.node('ocr-language').value='eng';
+ a.run("ocrFile={name:'scan.pdf',size:100}; fileDescription={name:'scan.pdf',format:'pdf'};fileSummary={words:0,dois:[]};");
+ const work=a.run('onOcr()');a.run('clearEntries()');assert.equal(signal.aborted,true);
+ pending.resolve({text:'Late private OCR text',format:'pdf',pages:1,ocr:{language:'eng',pagesProcessed:1,pageLimit:5}});await work;
+ assert.equal(a.run('fileSummary'),null);assert.equal(a.run('ocrFile'),null);assert.equal(a.run('ocrController'),null);
+});
+test('OCR timeout preserves previous inspection and releases the active UI state',async()=>{
+ const a=app(()=>{},()=>{},{recognizePdf:async()=>{throw Object.assign(new Error('timeout'),{code:'ocrTimeout'});}});
+ a.node('ocr-language').value='eng';a.node('verify-doi').disabled=true;
+ a.run("ocrFile={name:'scan.pdf',size:100};fileSummary={words:4,dois:[]};fileDescription={name:'scan.pdf',format:'pdf'};");
+ await a.run('onOcr()');assert.equal(a.run('fileSummary.words'),4);assert.equal(a.run('ocrStatus.key'),'ocrTimeout');assert.equal(a.run('ocrController'),null);assert.equal(a.node('verify-doi').disabled,false);
 });

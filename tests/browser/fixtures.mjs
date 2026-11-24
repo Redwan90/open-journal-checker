@@ -66,3 +66,18 @@ export function unicodePdfFixture(lines, rtl=false) {
  pdf+=`xref\n0 7\n0000000000 65535 f \n${offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n \n`).join('')}trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
  return Buffer.from(pdf);
 }
+
+// Image-only PDF: every page contains a JPEG; there is no hidden text layer.
+export async function scannedPdfFixture(page,{pages=1,lines=['Abstract','Synthetic manuscript example.','Keywords: Data; Ethics; Science','Methods','Synthetic analysis.','References','10.1234/synthetic']}={}) {
+ const bytes=await page.evaluate(async lines=>{
+  const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;
+  const context=canvas.getContext('2d');context.fillStyle='white';context.fillRect(0,0,canvas.width,canvas.height);context.fillStyle='black';context.font='42px Arial';
+  lines.forEach((line,index)=>context.fillText(line,80,120+index*105));
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.97));return [...new Uint8Array(await blob.arrayBuffer())];
+ },lines);
+ const image=Buffer.from(bytes), content=Buffer.from('q 595 0 0 842 0 0 cm /Im0 Do Q');
+ const objects=[Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from(`<< /Type /Pages /Kids [${Array.from({length:pages},(_,i)=>`${i+5} 0 R`).join(' ')}] /Count ${pages} >>`),Buffer.concat([Buffer.from(`<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${image.length} >>\nstream\n`),image,Buffer.from('\nendstream')]),Buffer.concat([Buffer.from(`<< /Length ${content.length} >>\nstream\n`),content,Buffer.from('\nendstream')]),...Array.from({length:pages},()=>Buffer.from('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> >> /Contents 4 0 R >>'))];
+ const parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
+ objects.forEach((body,index)=>{offsets.push(length);const object=Buffer.concat([Buffer.from(`${index+1} 0 obj\n`),body,Buffer.from('\nendobj\n')]);parts.push(object);length+=object.length;});
+ parts.push(Buffer.from(`xref\n0 ${objects.length+1}\n0000000000 65535 f \n${offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n \n`).join('')}trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${length}\n%%EOF`));return Buffer.concat(parts);
+}

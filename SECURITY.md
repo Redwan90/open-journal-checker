@@ -12,3 +12,4 @@
 - Pages publishes only tested `main` artifacts after both test jobs succeed. PRs have no deployment permissions. Action references are pinned, and a freshness check skips superseded commits. Keep Pages source set to GitHub Actions; legacy branch publishing would bypass this gate.
 
 For vulnerabilities, use GitHub private vulnerability reporting if available rather than publicly filing exploit details.
+Optional OCR downloads same-origin static assets after activation. Manuscript images stay local. Cancellation and timeout terminate the worker. See [OCR guidance](docs/OCR.md). WebAssembly uses the scoped CSP wasm-unsafe-eval directive.

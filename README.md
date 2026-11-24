@@ -68,7 +68,7 @@ These tests serve the actual application under `/open-journal-checker/` with its
 
 `npm ci && npm run build` copies the exact PDF.js version in the lockfile, worker, CMaps, fonts, WASM/ICC support files and licenses into `dist/vendor/pdfjs/`. It rewrites the generated reader location and removes the CDN from the release CSP. Source files are unchanged, so the quick source preview remains available.
 
-Serve the extracted release on a local static HTTP server to inspect files without external connectivity. This is not a PWA or a promise that a previously visited remote page stays available offline. Crossref verification still needs internet and stays opt-in. No OCR or native OJS submission transfer is added.
+Serve the extracted release on a local static HTTP server to inspect files without external connectivity. This is not a PWA or a promise that a previously visited remote page stays available offline. Crossref verification still needs internet and stays opt-in. Optional local OCR is available; native OJS submission transfer is not added.
 
 ## Customization
 
@@ -120,7 +120,7 @@ Referenced footnotes and endnotes from standard `word/footnotes.xml` and `word/e
 
 The reader accepts transitional and strict WordprocessingML namespaces. It rejects DTDs, encrypted/ambiguous ZIP entries and malformed directory bounds. A 12 MiB input limit and one aggregate 12 MiB XML inflation budget cover body and note parts; XML traversal is also bounded. ZIP64 and split archives are unsupported. CRC/signature validation, style-based hidden text, headers/footers/comments, equation/image interpretation, complex revision types, custom part locations and exact layout remain outside this reader's scope.
 
-PDF inspection reads text from at most the first 30 pages and reports that limit in the interface and reports. PDFs without extractable text receive an explicit warning: OCR is not provided. Text order and headings remain approximate for complex or multi-column layouts. Neither DOCX nor PDF inspection is a journal-formatting compliance certificate.
+PDF inspection reads text from at most the first 30 pages and reports that limit in the interface and reports. PDFs without extractable text receive an explicit warning: optional local OCR can inspect the first five pages. See [OCR guidance](docs/OCR.md). Text order and headings remain approximate for complex or multi-column layouts. Neither DOCX nor PDF inspection is a journal-formatting compliance certificate.
 
 The revision model follows the Open XML distinction between [deleted](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.deletedrun) and [moved-from run content](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.movefromrun); full revision acceptance requires more than text extraction.
 

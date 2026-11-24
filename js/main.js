@@ -4,6 +4,7 @@ import { evaluate, wordCount, parseKeywords, inspectText, isDoi } from './checke
 import { readManuscriptFile } from './files.js';
 import { t, rtl } from './i18n.js';
 import { journalText } from './journal-i18n.js';
+import { recognizePdf } from './ocr.js';
 import { VERSION } from './version.js';
 
 const $ = id => document.getElementById(id);
@@ -24,6 +25,7 @@ let config;
 try { config = normalizeConfig(JSON.parse(storedConfig() || '{}')); } catch { config = normalizeConfig(); }
 let configRevision = 0;
 let language = 'en';
+let ocrController = null, ocrFile = null, ocrStatus = null, ocrProgress = null;
 let fileSummary = null;
 let fileDescription = null;
 let fileStatus = null;
@@ -41,6 +43,8 @@ let toastTimer;
 let fileGeneration = 0;
 let doiController = null;
 function invalidateFile() {
+  ocrController?.abort(); ocrController=null;ocrFile=null;ocrStatus=null;ocrProgress=null;
+  renderOcrControls();
   fileGeneration++;
   doiController?.abort(); doiController = null;
   fileSummary = null; fileDescription = null; checkedDoi = null;
@@ -61,6 +65,7 @@ function renderFileStatus() {
   $('file-info').textContent = label(fileStatus?.key || 'fileIdle');
 }
 function parsingNotes(file, L = label) {
+  if(file.ocr) return [L('ocrReport',{count:file.ocr.pagesProcessed,total:file.pages,language:file.ocr.language}),L('ocrAccuracy'),...(file.partial?[L('ocrPartial',{count:file.ocr.pagesProcessed,total:file.pages})]:[]),...(file.words===0?[L('ocrNoText')]:[])];
   if (file.format === 'docx') return [
     L('docxTextMode'), L('docxNotes', file.notes || {footnotes:0,endnotes:0}),
     ...(file.missingNotes ? [L('docxMissingNotes',{count:file.missingNotes})] : [])
@@ -160,6 +165,7 @@ function updateLanguage(next) {
   renderJournal(); update();
   if (!fileSummary) renderFileStatus();
   else renderFile();
+  renderOcrControls();
 }
 function renderFile() {
   if (!fileSummary) return;
@@ -178,7 +184,8 @@ function renderFile() {
   const hint = document.createElement('p'); hint.textContent = label('headingNote');
   container.append(name, note, ul, hint);
   for (const text of parsingNotes({...fileDescription,words:r.words})) { const p=document.createElement('p');p.textContent=text;container.append(p); }
-  $('doi-zone').hidden = r.dois.length === 0;
+  $('doi-zone').hidden = r.dois.length === 0 || !!ocrController;
+  renderOcrControls();
   renderDoi();
 }
 async function onUpload() {
@@ -192,6 +199,7 @@ async function onUpload() {
     const extracted = await readManuscriptFile(file);
     if (generation !== fileGeneration) return;
     fileSummary = inspectText(extracted.text, extracted.structureText);
+    ocrFile = extracted.format === 'pdf' ? file : null;
     fileDescription = { name:file.name, bytes:file.size, format:extracted.format, notes:extracted.notes, missingNotes:extracted.missingNotes, pages:extracted.pages, partial:extracted.partial };
     fileStatus = null;
     renderFile();
@@ -200,6 +208,34 @@ async function onUpload() {
     fileSummary = null; fileDescription = null;
     const key = e.name === 'PasswordException' ? 'filePassword' : e.name === 'InvalidPDFException' ? 'fileInvalidPdf' : typeof e.code === 'string' && label(e.code) !== e.code ? e.code : 'fileReadError';
     fileStatus = { key, error:true }; renderFileStatus();
+  }
+}
+function renderOcrControls() {
+  $('ocr-zone').hidden = !ocrFile;
+  $('start-ocr').disabled = !!ocrController; $('ocr-language').disabled = !!ocrController;
+  $('cancel-ocr').hidden = !ocrController; $('ocr-progress').hidden = !ocrController;
+  const status = ocrController ? (ocrProgress?.page ? label('ocrWorking',ocrProgress) : label('ocrLoading')) : ocrStatus ? label(ocrStatus.key,ocrStatus.params) : '';
+  if($('ocr-status').textContent !== status) $('ocr-status').textContent = status;
+  if(ocrController) { if(ocrProgress?.page) $('ocr-progress').value=ocrProgress.percentage; else $('ocr-progress').removeAttribute('value'); }
+}
+async function onOcr() {
+  if(!ocrFile || ocrController)return;
+  const file=ocrFile, generation=++fileGeneration, controller=new AbortController();
+  ocrController=controller;ocrStatus=null;ocrProgress=null;
+  doiController?.abort();doiController=null;checkedDoi=null;$('verify-doi').disabled=false;renderDoi();$('doi-zone').hidden=true;
+  renderOcrControls();
+  const current=()=>generation===fileGeneration && ocrController===controller;
+  try {
+    const result=await recognizePdf(file,$('ocr-language').value,{signal:controller.signal,onProgress:progress=>{if(current()){ocrProgress=progress;renderOcrControls();}}});
+    if(!current())return;
+    fileSummary=inspectText(result.text);
+    fileDescription={name:file.name,bytes:file.size,format:'pdf',pages:result.pages,partial:result.partial,ocr:result.ocr};
+    ocrStatus={key:'ocrDone'};
+  } catch(e) {
+    if(!current())return;
+    ocrStatus={key:e.name==='AbortError'?'ocrCancelled':e.code==='ocrTimeout'?'ocrTimeout':'ocrFailed'};
+  } finally {
+    if(current()){const restoreFocus=document.activeElement===$('cancel-ocr');ocrController=null;ocrProgress=null;renderFile();renderOcrControls();if(restoreFocus)$('start-ocr').focus();}
   }
 }
 async function verifyDoi() {
@@ -232,7 +268,7 @@ function reportData() {
   const localizedEvaluation = { ...evaluation, confirmations:evaluation.confirmations.map(c => ({...c, sourceDescription:c.description, description:journalLabel('confirmation', c.description)})), checks:evaluation.checks.map(check => ({ ...check, values:checkDetail(check, evaluation) })) };
   return { generatedAt: new Date().toISOString(), language, project:'Open Journal Checker', version:VERSION, journal:config.journalName, journalTranslations:structuredClone(config.translations),
     disclaimer:label('advisoryReport'), manuscript:getManuscript(), evaluation:localizedEvaluation,
-    fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, note:label('headingNote'), format:fileDescription.format, notes:fileDescription.notes, missingNotes:fileDescription.missingNotes, pages:fileDescription?.pages, partial:fileDescription?.partial } : null,
+    fileInspection:fileSummary ? { filename:fileDescription?.name, ...fileSummary, note:label('headingNote'), format:fileDescription.format, notes:fileDescription.notes, missingNotes:fileDescription.missingNotes, pages:fileDescription?.pages, partial:fileDescription?.partial, ocr:fileDescription?.ocr, ocrWarning:fileDescription?.ocr ? label('ocrAccuracy') : null } : null,
     crossrefResult:checkedDoi ? label(checkedDoi.key, checkedDoi.params) : null };
 }
 function renderReportHtml(data) {
@@ -327,6 +363,8 @@ function attach() {
   $('language').addEventListener('change',e=>updateLanguage(e.target.value));
   $('manuscript-file').addEventListener('change',onUpload);
   $('verify-doi').addEventListener('click',verifyDoi);
+  $('start-ocr').addEventListener('click',onOcr);
+  $('cancel-ocr').addEventListener('click',()=>ocrController?.abort());
   $('download-report').addEventListener('click',()=>{ download('manuscript-preparation-report.html',renderReportHtml(reportData()),'text/html;charset=utf-8');flash(label('reportSaved')); });
   $('download-json').addEventListener('click',()=>download('manuscript-preparation-report.json',JSON.stringify(reportData(),null,2),'application/json'));
   $('print').addEventListener('click',()=>window.print());
